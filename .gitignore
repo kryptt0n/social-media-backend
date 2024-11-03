@@ -1,0 +1,60 @@
+# macOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# macOS folder attributes
+.Spotlight-V100
+.Trashes
+
+
+# Eclipse files
+.project
+.classpath
+.settings/
+
+.idea
+*.iws
+*.iml
+*.ipr
+
+
+# Java and class files
+*.class
+*.jar
+*.war
+*.ear
+
+# Log files
+*.log
+
+# Maven or Gradle directories (if you're using them)
+target/
+build/
+
+# Generated files like compiled JSPs
+*.jsp.java
+
+
+# Tomcat files
+logs/
+temp/
+work/
+wtpwebapps/
+
+# Deployment-related files
+*.iml
+
+
+# Git
+*.orig
+
+
+# Ignore any other personal or local configuration files
+*.env
+*.bak
+*.swp
+/bin/
