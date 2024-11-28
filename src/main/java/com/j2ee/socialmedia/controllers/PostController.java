@@ -1,11 +1,13 @@
 package com.j2ee.socialmedia.controllers;
 
+import com.j2ee.socialmedia.dto.PostDTO;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public class PostController {
     }
 
     @GetMapping(path = "/user/{userId}")
-    public ResponseEntity<List<Post>> getUserPosts(@PathVariable Integer userId) {
-        List<Post> posts = postService.getPostsByUserId(userId);
+    public ResponseEntity<List<PostDTO>> getUserPosts(@PathVariable Integer userId) {
+        List<PostDTO> posts = postService.getPostsByUserId(userId);
 
         if (posts.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -34,8 +36,8 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post) {
-        Post createdPost = postService.create(post);
+    public ResponseEntity<Post> createPost(@RequestBody Post post, Authentication auth) {
+        Post createdPost = postService.create(post, auth.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 

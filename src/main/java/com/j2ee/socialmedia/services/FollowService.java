@@ -1,30 +1,30 @@
 package com.j2ee.socialmedia.services;
 
-import com.j2ee.socialmedia.dto.PostDTO;
+import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.repositories.PostRepository;
 import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PostService {
+public class FollowService {
 
     private PostRepository postRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public FollowService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
     }
 
-    // TODO: add user to post
-    public Post create(Post post, String username) {
+    public Post create(Post post) {
         return postRepository.save(post);
     }
 
@@ -50,8 +50,22 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
-    public List<PostDTO> getPostsByUserId(int userId) {
+    public List<Post> getPostsByUserId(int userId) {
         User user = userRepository.getById(userId);
+        return postRepository.findAllByUser(user);
+    }
+
+    public void follow(String username, String name) {
+    }
+
+    public void unfollow(String username, String name) {
+    }
+
+    public List<UserDTO> getFollowers(String username, Authentication auth) {
+        return null;
+    }
+
+    public List<UserDTO> getFollowed(String username, Authentication auth) {
         return null;
     }
 }
