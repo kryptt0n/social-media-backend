@@ -1,7 +1,6 @@
 package com.j2ee.socialmedia.services;
 
 import com.j2ee.socialmedia.dto.PostDTO;
-import com.j2ee.socialmedia.entities.Like;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.repositories.LikeRepository;
@@ -10,6 +9,7 @@ import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +31,7 @@ public class PostService {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             post.setUser(user.get());
+            post.setCreatedAt(LocalDateTime.now());
             return postRepository.save(post);
         } else {
             return null;
@@ -47,14 +48,6 @@ public class PostService {
         return Optional.of(postRepository.save(post));
     }
 
-    public Post getPostById(int postId) {
-        return postRepository.getById(postId);
-    }
-
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
-    }
-
     public void deletePostById(int postId) {
         postRepository.deleteById(postId);
     }
@@ -62,18 +55,15 @@ public class PostService {
     public List<PostDTO> getPostsByUserId(int userId) {
         User user = userRepository.getById(userId);
         List<Post> posts = postRepository.findAllByUser(user);
-        List<Like> likes = likeRepository.findAllByUser(user);
-        List<Integer> likedPostIds = likes.stream().map(like ->
-                like.getPost().getId()
-        ).toList();
         List<PostDTO> result = posts.stream().map(post ->
             new PostDTO(
                     post.getId(),
                     post.getContent(),
                     post.getImage(),
                     post.getUser(),
-                    likedPostIds.contains(post.getId()),
-                    likeRepository.findAllByPost(post).size()
+                    post.getCreatedAt(),
+                    post.getLikes().stream().anyMatch(like -> like.getUser().getId().equals(userId)),
+                    post.getLikes().size()
             )
         ).toList();
         return result;

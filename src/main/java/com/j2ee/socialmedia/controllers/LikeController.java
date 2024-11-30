@@ -32,8 +32,8 @@ public class LikeController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteLike(@RequestBody Like like) {
-        likeService.deleteLikeByPost(like.getPost());
+    public ResponseEntity<Void> deleteLike(@RequestBody Like like, Authentication auth) {
+        likeService.deleteLike(like, auth.getName());
         return ResponseEntity.noContent().build();
     }
 
