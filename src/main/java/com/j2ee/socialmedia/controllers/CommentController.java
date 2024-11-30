@@ -22,7 +22,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @GetMapping("/post/{postId")
+    @GetMapping("/post/{postId}")
     public ResponseEntity<List<Comment>> getCommentsForPost(@RequestParam int postId) {
         List<Comment> comments = commentService.getCommentByPost(postId);
         return ResponseEntity.ok(comments);
