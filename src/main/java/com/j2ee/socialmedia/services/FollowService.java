@@ -2,13 +2,10 @@ package com.j2ee.socialmedia.services;
 
 import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.Follow;
-import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.repositories.FollowRepository;
-import com.j2ee.socialmedia.repositories.PostRepository;
 import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,12 +17,10 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final DtoMapperService dtoMapperService;
-    private PostRepository postRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public FollowService(PostRepository postRepository, UserRepository userRepository, FollowRepository followRepository, DtoMapperService dtoMapperService) {
-        this.postRepository = postRepository;
+    public FollowService(UserRepository userRepository, FollowRepository followRepository, DtoMapperService dtoMapperService) {
         this.userRepository = userRepository;
         this.followRepository = followRepository;
         this.dtoMapperService = dtoMapperService;
@@ -64,22 +59,21 @@ public class FollowService {
             List<Follow> follows = followRepository.findAllByFollowed(user);
             List<UserDTO> users = follows
                     .stream()
-                    .map(dtoMapperService.followToUserDTO(user)).toList();
+                    .map(dtoMapperService.followerToUserDTO(user)).toList();
 
             return users;
         }
         return List.of();
     }
 
-    // TODO: adapt to followed
     public List<UserDTO> getFollowed(String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            List<Follow> follows = followRepository.findAllByFollowed(user);
-            List<UserDTO> users = follows
+            List<Follow> followed = followRepository.findAllByFollower(user);
+            List<UserDTO> users = followed
                     .stream()
-                    .map(dtoMapperService.followToUserDTO(user)).toList();
+                    .map(dtoMapperService.followedToUserDTO(user)).toList();
 
             return users;
         }

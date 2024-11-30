@@ -25,11 +25,19 @@ public class DtoMapperService {
                 );
     }
 
-    public Function<Follow, UserDTO> followToUserDTO(User user) {
+    public Function<Follow, UserDTO> followerToUserDTO(User user) {
         return follow -> new UserDTO(
                 follow.getFollower().getUsername(),
                 follow.getFollower().getProfilePicture(),
                 follow.getFollower().getBio(),
                 user.getFollowers().contains(follow.getFollower()));
+    }
+
+    public Function<Follow, UserDTO> followedToUserDTO(User user) {
+        return follow -> new UserDTO(
+                follow.getFollowed().getUsername(),
+                follow.getFollowed().getProfilePicture(),
+                follow.getFollowed().getBio(),
+                user.getFollows().contains(follow.getFollowed()));
     }
 }
