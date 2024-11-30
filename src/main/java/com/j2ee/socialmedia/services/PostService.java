@@ -17,14 +17,16 @@ import java.util.Optional;
 public class PostService {
 
     private final LikeRepository likeRepository;
+    private final DtoMapperService dtoMapperService;
     private PostRepository postRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository, DtoMapperService dtoMapperService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.likeRepository = likeRepository;
+        this.dtoMapperService = dtoMapperService;
     }
 
     public Post create(Post post, String username) {
@@ -55,17 +57,10 @@ public class PostService {
     public List<PostDTO> getPostsByUserId(int userId) {
         User user = userRepository.getById(userId);
         List<Post> posts = postRepository.findAllByUser(user);
-        List<PostDTO> result = posts.stream().map(post ->
-            new PostDTO(
-                    post.getId(),
-                    post.getContent(),
-                    post.getImage(),
-                    post.getUser(),
-                    post.getCreatedAt(),
-                    post.getLikes().stream().anyMatch(like -> like.getUser().getId().equals(userId)),
-                    post.getLikes().size()
-            )
-        ).toList();
+        List<PostDTO> result = posts
+                .stream()
+                .map(dtoMapperService.postToPostDTO(userId))
+                .toList();
         return result;
     }
 }
