@@ -1,4 +1,10 @@
+FROM maven:3.9.8-sapmachine-21 AS build
+WORKDIR /app
+COPY pom.xml ./
+COPY src ./src
+RUN mvn clean install
+
 FROM openjdk:21-jdk
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["java","-jar","/app/app.jar"]
