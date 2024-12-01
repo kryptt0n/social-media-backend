@@ -3,61 +3,51 @@ package com.j2ee.socialmedia.services;
 import com.j2ee.socialmedia.entities.Comment;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
+import com.j2ee.socialmedia.repositories.CommentRepository;
 import com.j2ee.socialmedia.repositories.PostRepository;
 import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CommentService {
 
+    private final CommentRepository commentRepository;
     private PostRepository postRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public CommentService(PostRepository postRepository, UserRepository userRepository) {
+    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
-    public Post create(Post post) {
-        return postRepository.save(post);
-    }
 
-    public Optional<Post> update(Integer postId, Post post) {
-        Optional<Post> existingPost = postRepository.findById(postId);
-        if (existingPost.isEmpty()) {
-            return Optional.empty();
+    public List<Comment> getCommentByPost(Integer postId) {
+        Optional<Post> post = postRepository.findById(postId);
+        if (post.isPresent()) {
+            List<Comment> comments = post.get().getComments().stream().toList();
+            return comments;
         }
-
-        post.setId(postId);
-        return Optional.of(postRepository.save(post));
-    }
-
-    public Post getPostById(int postId) {
-        return postRepository.getById(postId);
-    }
-
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
-    }
-
-    public void deletePostById(int postId) {
-        postRepository.deleteById(postId);
-    }
-
-    public List<Post> getPostsByUserId(int userId) {
-        User user = userRepository.getById(userId);
-        return postRepository.findAllByUser(user);
-    }
-
-    public List<Comment> getCommentByPost(int postId) {
         return null;
     }
 
-    public void create(Comment comment, String name) {
+    public Comment create(Comment comment, String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            comment.setUser(userOptional.get());
+            comment.setCreatedAt(LocalDateTime.now());
+            return commentRepository.save(comment);
+        }
+        return null;
+    }
+
+    public void deleteComment(Integer commentId) {
+        commentRepository.deleteById(commentId);
     }
 }
