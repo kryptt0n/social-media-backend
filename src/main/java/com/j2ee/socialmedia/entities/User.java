@@ -22,6 +22,8 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    private String roles;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Notification> notifications;
 
@@ -37,13 +39,14 @@ public class User {
     public User() {
     }
 
-    public User(Integer id, String username, String password, byte[] profilePicture, String bio, LocalDateTime createdAt) {
+    public User(Integer id, String username, String password, byte[] profilePicture, String bio, LocalDateTime createdAt, String roles) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.profilePicture = profilePicture;
         this.bio = bio;
         this.createdAt = createdAt;
+        this.roles = roles;
     }
 
     public Integer getId() {
@@ -124,5 +127,13 @@ public class User {
 
     public void setFollows(Set<Follow> follows) {
         this.follows = follows;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 }
