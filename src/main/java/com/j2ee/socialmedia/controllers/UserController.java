@@ -27,7 +27,7 @@ public class UserController {
     public ResponseEntity<Void> register(@RequestBody User user) {
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getRoles().isEmpty()) {
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
             user.setRoles("USER");
         }
         userRepository.save(user);
