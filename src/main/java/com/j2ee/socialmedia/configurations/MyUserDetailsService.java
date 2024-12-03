@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
@@ -19,10 +21,14 @@ public class MyUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
+        String[] roles = user.getRoles() != null && !user.getRoles().isEmpty()
+                ? user.getRoles().split(",")
+                : new String[] {"ROLE_USER"};
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .roles(user.getRoles().split(","))
+                .roles(roles)
                 .disabled(false)
                 .accountLocked(false)
                 .build();

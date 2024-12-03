@@ -1,6 +1,7 @@
 package com.j2ee.socialmedia.services;
 
 import com.j2ee.socialmedia.dto.PostDTO;
+import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.repositories.LikeRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,38 +31,48 @@ public class PostService {
         this.dtoMapperService = dtoMapperService;
     }
 
-    public Post create(Post post, String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent()) {
-            post.setUser(user.get());
+    public PostDTO create(Post post, String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            post.setUser(user);
             post.setCreatedAt(LocalDateTime.now());
-            return postRepository.save(post);
+            post.setLikes(new HashSet<>());
+            post.setComments(new HashSet<>());
+            Post saved = postRepository.save(post);
+            return dtoMapperService.postToPostDTO(user.getId()).apply(saved);
         } else {
             return null;
         }
     }
 
-    public Optional<Post> update(Integer postId, Post post) {
+    public Optional<PostDTO> update(Integer postId, Post post) {
         Optional<Post> existingPost = postRepository.findById(postId);
         if (existingPost.isEmpty()) {
             return Optional.empty();
         }
 
         post.setId(postId);
-        return Optional.of(postRepository.save(post));
+        Post saved = postRepository.save(post);
+        return Optional.of(dtoMapperService.postToPostDTO(post.getUser().getId()).apply(saved));
     }
 
     public void deletePostById(int postId) {
         postRepository.deleteById(postId);
     }
 
-    public List<PostDTO> getPostsByUserId(int userId) {
-        User user = userRepository.getById(userId);
-        List<Post> posts = postRepository.findAllByUser(user);
-        List<PostDTO> result = posts
-                .stream()
-                .map(dtoMapperService.postToPostDTO(userId))
-                .toList();
-        return result;
+    public List<PostDTO> getPostsByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            List<Post> posts = postRepository.findAllByUser(user);
+            List<PostDTO> result = posts
+                    .stream()
+                    .map(dtoMapperService.postToPostDTO(user.getId()))
+                    .toList();
+            return result;
+        }
+        return null;
     }
 }

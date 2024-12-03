@@ -18,11 +18,27 @@ public class DtoMapperService {
                         post.getId(),
                         post.getContent(),
                         post.getImage(),
-                        post.getUser(),
+                        userToUserDTO(userId).apply(post.getUser()),
                         post.getCreatedAt(),
                         post.getLikes().stream().anyMatch(like -> like.getUser().getId().equals(userId)),
                         post.getLikes().size()
                 );
+    }
+
+    /**
+     *
+     * @param userId - current user id
+     * @return
+     */
+    public Function<User, UserDTO> userToUserDTO(Integer userId) {
+        return user -> new UserDTO(
+                user.getUsername(),
+                user.getProfilePicture(),
+                user.getBio(),
+                user.getFollowers()
+                        .stream()
+                        .anyMatch(follow -> follow.getFollower().getId().equals(userId))
+        );
     }
 
     public Function<Follow, UserDTO> followerToUserDTO(User user) {

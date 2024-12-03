@@ -38,9 +38,4 @@ public class WebConfig implements WebMvcConfigurer {
     public PasswordEncoder passwordEncoder() {
         return new Sha256Encoder();
     }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new MyUserDetailsService();
-    }
 }

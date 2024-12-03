@@ -24,9 +24,9 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping(path = "/user/{userId}")
-    public ResponseEntity<List<PostDTO>> getUserPosts(@PathVariable Integer userId) {
-        List<PostDTO> posts = postService.getPostsByUserId(userId);
+    @GetMapping(path = "/user/{username}")
+    public ResponseEntity<List<PostDTO>> getUserPosts(@PathVariable String username) {
+        List<PostDTO> posts = postService.getPostsByUsername(username);
 
         if (posts.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -36,15 +36,15 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post, Authentication auth) {
-        Post createdPost = postService.create(post, auth.getName());
+    public ResponseEntity<PostDTO> createPost(@RequestBody Post post, Authentication auth) {
+        PostDTO createdPost = postService.create(post, auth.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
     @PutMapping(path = "/{postId}")
-    public ResponseEntity<Post> updatePost(@PathVariable Integer postId, @RequestBody Post post) {
+    public ResponseEntity<PostDTO> updatePost(@PathVariable Integer postId, @RequestBody Post post) {
 
-        Optional<Post> updatedPost = postService.update(postId, post);
+        Optional<PostDTO> updatedPost = postService.update(postId, post);
 
         if (updatedPost.isPresent()) {
             return ResponseEntity.ok(updatedPost.get());

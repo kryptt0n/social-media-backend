@@ -3,6 +3,7 @@ package com.j2ee.socialmedia.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -25,16 +26,16 @@ public class User {
     private String roles;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Notification> notifications;
+    private Set<Notification> notifications = new HashSet<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Post> posts;
+    private Set<Post> posts = new HashSet<>();
 
     @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Follow> followers;
+    private Set<Follow> followers = new HashSet<>();
 
     @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Follow> follows;
+    private Set<Follow> follows = new HashSet<>();
 
     public User() {
     }
