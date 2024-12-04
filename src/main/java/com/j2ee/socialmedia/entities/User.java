@@ -31,10 +31,10 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Post> posts = new HashSet<>();
 
-    @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "follower", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Follow> followers = new HashSet<>();
 
-    @OneToMany(mappedBy = "followed", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "followed", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Follow> follows = new HashSet<>();
 
     public User() {

@@ -37,9 +37,7 @@ public class DtoMapperService {
                 user.getUsername(),
                 user.getProfilePicture(),
                 user.getBio(),
-                user.getFollowers()
-                        .stream()
-                        .anyMatch(follow -> follow.getFollower().getUsername().equals(usernameCurrent))
+                isFollowed(user, usernameCurrent)
         );
     }
 
@@ -67,5 +65,15 @@ public class DtoMapperService {
                 userToUserDTO(comment.getUser().getUsername()).apply(comment.getUser()),
                 comment.getCreatedAt()
         );
+    }
+
+    public boolean isFollowed(User user, String currentUsername) {
+        return user.getFollows()
+                .stream()
+                .anyMatch(
+                        follow -> follow
+                                .getFollower()
+                                .getUsername()
+                                .equals(currentUsername));
     }
 }
