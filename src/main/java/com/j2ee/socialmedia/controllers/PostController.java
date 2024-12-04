@@ -35,6 +35,27 @@ public class PostController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<PostDTO>> getAllPosts(Authentication auth) {
+        List<PostDTO> posts = postService.getAllPosts(auth.getName());
+
+        if (posts.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/followed")
+    public ResponseEntity<List<PostDTO>> getFollowedPosts(Authentication auth) {
+        System.out.println("in /followed");
+        List<PostDTO> posts = postService.getFollowedPosts(auth.getName());
+
+        if (posts.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(posts);
+    }
+
     @PostMapping
     public ResponseEntity<PostDTO> createPost(@RequestBody Post post, Authentication auth) {
         PostDTO createdPost = postService.create(post, auth.getName());

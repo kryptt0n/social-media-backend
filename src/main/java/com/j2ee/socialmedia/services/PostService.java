@@ -1,16 +1,17 @@
 package com.j2ee.socialmedia.services;
 
 import com.j2ee.socialmedia.dto.PostDTO;
-import com.j2ee.socialmedia.dto.UserDTO;
+import com.j2ee.socialmedia.entities.Follow;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
-import com.j2ee.socialmedia.repositories.LikeRepository;
+import com.j2ee.socialmedia.repositories.FollowRepository;
 import com.j2ee.socialmedia.repositories.PostRepository;
 import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -18,17 +19,19 @@ import java.util.Optional;
 @Service
 public class PostService {
 
-    private final LikeRepository likeRepository;
     private final DtoMapperService dtoMapperService;
+    private final FollowRepository followRepository;
+    private final PostComparator postComparator;
     private PostRepository postRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository, DtoMapperService dtoMapperService) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, DtoMapperService dtoMapperService, FollowRepository followRepository, PostComparator postComparator) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.likeRepository = likeRepository;
         this.dtoMapperService = dtoMapperService;
+        this.followRepository = followRepository;
+        this.postComparator = postComparator;
     }
 
     public PostDTO create(Post post, String username) {
@@ -40,7 +43,7 @@ public class PostService {
             post.setLikes(new HashSet<>());
             post.setComments(new HashSet<>());
             Post saved = postRepository.save(post);
-            return dtoMapperService.postToPostDTO(user.getId()).apply(saved);
+            return dtoMapperService.postToPostDTO(username).apply(saved);
         } else {
             return null;
         }
@@ -54,7 +57,7 @@ public class PostService {
 
         post.setId(postId);
         Post saved = postRepository.save(post);
-        return Optional.of(dtoMapperService.postToPostDTO(post.getUser().getId()).apply(saved));
+        return Optional.of(dtoMapperService.postToPostDTO(post.getUser().getUsername()).apply(saved));
     }
 
     public void deletePostById(int postId) {
@@ -69,10 +72,39 @@ public class PostService {
             List<Post> posts = postRepository.findAllByUser(user);
             List<PostDTO> result = posts
                     .stream()
-                    .map(dtoMapperService.postToPostDTO(user.getId()))
+                    .map(dtoMapperService.postToPostDTO(username))
                     .toList();
             return result;
         }
-        return null;
+        return List.of();
+    }
+
+    public List<PostDTO> getAllPosts(String username) {
+        List<Post> posts = postRepository.findAll();
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            return posts.stream().map(dtoMapperService.postToPostDTO(username)).toList();
+        }
+        return List.of();
+    }
+
+    public List<PostDTO> getFollowedPosts(String username) {
+
+        Optional<User> userOptional = userRepository.findByUsername(username);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            List<Follow> follows = followRepository.findAllByFollower(user);
+            List<Post> posts = new ArrayList<>(follows.stream()
+                    .map(follow -> follow.getFollowed().getPosts().stream()
+                            .toList())
+                    .toList()
+                    .stream()
+                    .flatMap(List::stream).toList());
+            posts.sort(postComparator);
+            return posts.stream().map(dtoMapperService.postToPostDTO(username)).toList();
+        }
+
+        return List.of();
     }
 }

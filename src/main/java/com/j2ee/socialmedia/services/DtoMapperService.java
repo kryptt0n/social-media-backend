@@ -12,32 +12,32 @@ import java.util.function.Function;
 @Service
 public class DtoMapperService {
 
-    public Function<Post, PostDTO> postToPostDTO(Integer userId) {
+    public Function<Post, PostDTO> postToPostDTO(String username) {
         return post ->
                 new PostDTO(
                         post.getId(),
                         post.getContent(),
                         post.getImage(),
-                        userToUserDTO(userId).apply(post.getUser()),
+                        userToUserDTO(username).apply(post.getUser()),
                         post.getCreatedAt(),
-                        post.getLikes().stream().anyMatch(like -> like.getUser().getId().equals(userId)),
+                        post.getLikes().stream().anyMatch(like -> like.getUser().getUsername().equals(username)),
                         post.getLikes().size()
                 );
     }
 
     /**
      *
-     * @param userId - current user id
+     * @param username - current username
      * @return
      */
-    public Function<User, UserDTO> userToUserDTO(Integer userId) {
+    public Function<User, UserDTO> userToUserDTO(String username) {
         return user -> new UserDTO(
                 user.getUsername(),
                 user.getProfilePicture(),
                 user.getBio(),
                 user.getFollowers()
                         .stream()
-                        .anyMatch(follow -> follow.getFollower().getId().equals(userId))
+                        .anyMatch(follow -> follow.getFollower().getUsername().equals(username))
         );
     }
 
