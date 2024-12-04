@@ -1,5 +1,6 @@
 package com.j2ee.socialmedia.services;
 
+import com.j2ee.socialmedia.dto.CommentDTO;
 import com.j2ee.socialmedia.entities.Comment;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.entities.User;
@@ -17,24 +18,29 @@ import java.util.Optional;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final DtoMapperService dtoMapperService;
     private PostRepository postRepository;
     private UserRepository userRepository;
 
     @Autowired
-    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, DtoMapperService dtoMapperService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.dtoMapperService = dtoMapperService;
     }
 
 
-    public List<Comment> getCommentByPost(Integer postId) {
+    public List<CommentDTO> getCommentByPost(Integer postId) {
         Optional<Post> post = postRepository.findById(postId);
         if (post.isPresent()) {
             List<Comment> comments = post.get().getComments().stream().toList();
-            return comments;
+            return comments
+                    .stream()
+                    .map(dtoMapperService.commentToCommentDTO())
+                    .toList();
         }
-        return null;
+        return List.of();
     }
 
     public Comment create(Comment comment, String username) {

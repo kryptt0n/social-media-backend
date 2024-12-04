@@ -1,37 +1,37 @@
 package com.j2ee.socialmedia.controllers;
 
+import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.User;
-import com.j2ee.socialmedia.repositories.UserRepository;
+import com.j2ee.socialmedia.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.Optional;
 
 @RestController
 public class UserController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody User user) {
-        user.setCreatedAt(LocalDateTime.now());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            user.setRoles("USER");
-        }
-        userRepository.save(user);
+        userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/users/{username}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable String username, Authentication auth) {
+        Optional<UserDTO> userOptional = userService.getUserByUsername(username, auth.getName());
+        if (userOptional.isPresent())
+            return ResponseEntity.ok(userOptional.get());
+
+        return ResponseEntity.notFound().build();
     }
 
 }
