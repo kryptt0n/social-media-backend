@@ -34,14 +34,14 @@ public class FollowController {
     }
 
     @GetMapping("/followers/{username}")
-    public ResponseEntity<List<UserDTO>> getFollowers(@PathVariable String username) {
-        List<UserDTO> followers = followService.getFollowers(username);
+    public ResponseEntity<List<UserDTO>> getFollowers(@PathVariable String username, Authentication auth) {
+        List<UserDTO> followers = followService.getFollowers(username, auth.getName());
         return ResponseEntity.ok(followers);
     }
 
     @GetMapping("/followed/{username}")
-    public ResponseEntity<List<UserDTO>> getFollowed(@PathVariable String username) {
-        List<UserDTO> followers = followService.getFollowed(username);
+    public ResponseEntity<List<UserDTO>> getFollowed(@PathVariable String username, Authentication auth) {
+        List<UserDTO> followers = followService.getFollowed(username, auth.getName());
         return ResponseEntity.ok(followers);
     }
 

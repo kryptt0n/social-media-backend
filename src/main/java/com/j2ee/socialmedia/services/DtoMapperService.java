@@ -41,22 +41,6 @@ public class DtoMapperService {
         );
     }
 
-    public Function<Follow, UserDTO> followerToUserDTO(User user) {
-        return follow -> new UserDTO(
-                follow.getFollower().getUsername(),
-                follow.getFollower().getProfilePicture(),
-                follow.getFollower().getBio(),
-                user.getFollowers().contains(follow.getFollower()));
-    }
-
-    public Function<Follow, UserDTO> followedToUserDTO(User user) {
-        return follow -> new UserDTO(
-                follow.getFollowed().getUsername(),
-                follow.getFollowed().getProfilePicture(),
-                follow.getFollowed().getBio(),
-                user.getFollows().contains(follow.getFollowed()));
-    }
-
     public Function<Comment, CommentDTO> commentToCommentDTO() {
         return comment -> new CommentDTO(
                 comment.getId(),
@@ -67,13 +51,13 @@ public class DtoMapperService {
         );
     }
 
-    public boolean isFollowed(User user, String currentUsername) {
+    private boolean isFollowed(User user, String currentUsername) {
         return user.getFollows()
                 .stream()
                 .anyMatch(
                         follow -> follow
                                 .getFollower()
                                 .getUsername()
-                                .equals(currentUsername));
+                                .equalsIgnoreCase(currentUsername));
     }
 }

@@ -52,28 +52,32 @@ public class FollowService {
         }
     }
 
-    public List<UserDTO> getFollowers(String username) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+    public List<UserDTO> getFollowers(String usernameFollower, String currentUsername) {
+        Optional<User> userOptional = userRepository.findByUsername(usernameFollower);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             List<Follow> follows = followRepository.findAllByFollowed(user);
             List<UserDTO> users = follows
                     .stream()
-                    .map(dtoMapperService.followerToUserDTO(user)).toList();
+                    .map(Follow::getFollower)
+                    .map(dtoMapperService.userToUserDTO(currentUsername))
+                    .toList();
 
             return users;
         }
         return List.of();
     }
 
-    public List<UserDTO> getFollowed(String username) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+    public List<UserDTO> getFollowed(String usernameFollowed, String currentUsername) {
+        Optional<User> userOptional = userRepository.findByUsername(usernameFollowed);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             List<Follow> followed = followRepository.findAllByFollower(user);
             List<UserDTO> users = followed
                     .stream()
-                    .map(dtoMapperService.followedToUserDTO(user)).toList();
+                    .map(Follow::getFollowed)
+                    .map(dtoMapperService.userToUserDTO(currentUsername))
+                    .toList();
 
             return users;
         }
