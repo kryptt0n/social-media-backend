@@ -8,13 +8,12 @@ import com.j2ee.socialmedia.repositories.FollowRepository;
 import com.j2ee.socialmedia.repositories.PostRepository;
 import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -69,7 +68,7 @@ public class PostService {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            List<Post> posts = postRepository.findAllByUser(user);
+            List<Post> posts = postRepository.findAllByUserOrderByCreatedAtDesc(user);
             List<PostDTO> result = posts
                     .stream()
                     .map(dtoMapperService.postToPostDTO(username))
@@ -80,7 +79,7 @@ public class PostService {
     }
 
     public List<PostDTO> getAllPosts(String username) {
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = postRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             return posts.stream().map(dtoMapperService.postToPostDTO(username)).toList();

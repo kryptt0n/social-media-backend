@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ public class CommentService {
     public List<CommentDTO> getCommentByPost(Integer postId) {
         Optional<Post> post = postRepository.findById(postId);
         if (post.isPresent()) {
-            List<Comment> comments = post.get().getComments().stream().toList();
+            List<Comment> comments = commentRepository.findByPostOrderByCreatedAtDesc(post.get());
             return comments
                     .stream()
                     .map(dtoMapperService.commentToCommentDTO())
