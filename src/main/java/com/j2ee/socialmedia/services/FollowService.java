@@ -6,7 +6,10 @@ import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.repositories.FollowRepository;
 import com.j2ee.socialmedia.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,12 +46,24 @@ public class FollowService {
         }
     }
 
+    @Transactional
     public void unfollow(String followedUsername, String username) {
         Optional<User> user = userRepository.findByUsername(username);
         Optional<User> userToUnfollow = userRepository.findByUsername(followedUsername);
-        if (userToUnfollow.isPresent() && user.isPresent()) {
-            Optional<Follow> follow = followRepository.findByFollowedAndFollower(userToUnfollow.get(), user.get());
-            follow.ifPresent(followRepository::delete);
+
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + username);
+        }
+
+        if (userToUnfollow.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User to unfollow not found: " + followedUsername);
+        }
+
+        Optional<Follow> follow = followRepository.findByFollowedAndFollower(userToUnfollow.get(), user.get());
+        if (follow.isPresent()) {
+            followRepository.delete(follow.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Follow relationship not found");
         }
     }
 
