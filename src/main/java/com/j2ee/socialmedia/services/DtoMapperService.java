@@ -37,7 +37,9 @@ public class DtoMapperService {
                 user.getUsername(),
                 user.getProfilePicture(),
                 user.getBio(),
-                isFollowed(user, usernameCurrent)
+                isFollowed(user, usernameCurrent),
+                user.getFollows().size(),
+                user.getFollowers().size()
         );
     }
 
