@@ -39,4 +39,12 @@ public class UserService {
         }
         return Optional.empty();
     }
+
+    public Optional<User> authenticateUser(User user) {
+        Optional<User> foundUser = userRepository.findByUsername(user.getUsername());
+        if (foundUser.isPresent() && passwordEncoder.matches(user.getPassword(), foundUser.get().getPassword())) {
+            return foundUser;
+        }
+        return Optional.empty();
+    }
 }
