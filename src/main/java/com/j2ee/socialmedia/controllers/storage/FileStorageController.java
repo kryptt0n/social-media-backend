@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequestMapping("files")
 public class FileStorageController {
     private final StorageService storageService;
-
+    
     @Autowired
     public FileStorageController(StorageService storageService) {
         this.storageService = storageService;
