@@ -21,8 +21,8 @@ public class PostService {
     private final DtoMapperService dtoMapperService;
     private final FollowRepository followRepository;
     private final PostComparator postComparator;
-    private PostRepository postRepository;
-    private UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public PostService(PostRepository postRepository, UserRepository userRepository, DtoMapperService dtoMapperService, FollowRepository followRepository, PostComparator postComparator) {

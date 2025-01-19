@@ -16,12 +16,4 @@ public class SocialmediaApplication {
         SpringApplication.run(SocialmediaApplication.class, args);
         System.out.println("Test");
     }
-
-    @Bean
-    CommandLineRunner init(StorageService storageService) {
-        return (args) -> {
-            storageService.deleteAll();
-            storageService.init();
-        };
-    }
 }

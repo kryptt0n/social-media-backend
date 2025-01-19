@@ -1,6 +1,7 @@
 package com.j2ee.socialmedia.services.storage;
 
 import com.j2ee.socialmedia.configurations.storage.StorageProperties;
+import com.j2ee.socialmedia.controllers.storage.FileStorageController;
 import com.j2ee.socialmedia.controllers.storage.StorageException;
 import com.j2ee.socialmedia.controllers.storage.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +41,14 @@ public class FileSystemStorageService implements StorageService {
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file.");
             }
+            if (!Files.exists(rootLocation)) {
+                Files.createDirectories(rootLocation);
+            }
+            String originalFilename = file.getOriginalFilename();
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String newFilename = timestamp + "_" + originalFilename;
             Path destinationFile = this.rootLocation.resolve(
-                            Paths.get(file.getOriginalFilename()))
+                            Paths.get(newFilename))
                     .normalize().toAbsolutePath();
             if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
                 // This is a security check
@@ -102,5 +110,16 @@ public class FileSystemStorageService implements StorageService {
         } catch (IOException e) {
             throw new StorageException("Could not initialize storage", e);
         }
+    }
+
+    @Override
+    public String generateFileUrl(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            throw new IllegalArgumentException("Filename cannot be null or empty");
+        }
+        String url = MvcUriComponentsBuilder.fromMethodName(FileStorageController.class,
+                "serveFile", filename).build().toUri().toString();
+        System.out.println("Generated URL for file: " + filename + " -> " + url);
+        return url;
     }
 }

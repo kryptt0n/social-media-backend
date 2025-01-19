@@ -20,7 +20,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final DtoMapperService dtoMapperService;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public FollowService(UserRepository userRepository, FollowRepository followRepository, DtoMapperService dtoMapperService) {

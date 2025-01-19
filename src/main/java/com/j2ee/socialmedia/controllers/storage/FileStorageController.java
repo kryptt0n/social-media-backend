@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("files")
 public class FileStorageController {
     private final StorageService storageService;
 
@@ -24,18 +25,7 @@ public class FileStorageController {
         this.storageService = storageService;
     }
 
-    @GetMapping("/files/list")
-    public String listUploadedFiles(Model model) throws IOException {
-
-        model.addAttribute("files", storageService.loadAll().map(
-                        path -> MvcUriComponentsBuilder.fromMethodName(FileStorageController.class,
-                                "serveFile", path.getFileName().toString()).build().toUri().toString())
-                .collect(Collectors.toList()));
-
-        return "uploadForm";
-    }
-
-    @GetMapping("/files/{filename:.+}")
+    @GetMapping("/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 
@@ -48,15 +38,27 @@ public class FileStorageController {
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/files")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes) {
-
-        storageService.store(file);
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
-
-        return "redirect:/";
+    @PostMapping
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("File is empty");
+            }
+            System.out.println("Uploaded file: " + file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String newFilename = timestamp + "_" + originalFilename;
+            storageService.store(file);
+            String fileUrl = storageService.generateFileUrl(newFilename);
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                return ResponseEntity.status(500).body("Failed to generate file URL");
+            }
+            System.out.println("File URL: " + fileUrl);
+            return ResponseEntity.ok(fileUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("File upload failed: " + e.getMessage());
+        }
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)
