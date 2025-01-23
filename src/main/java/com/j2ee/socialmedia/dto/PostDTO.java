@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public record PostDTO(Integer id,
                       String content,
-                      byte[] image,
+                      String imageUrl,
                       UserDTO user,
                       LocalDateTime createdAt,
                       boolean likedByCurrentUser,

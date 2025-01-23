@@ -3,6 +3,7 @@ package com.j2ee.socialmedia.entities;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -18,8 +19,8 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
-    @Column(name = "profile_picture")
-    private byte[] profilePicture;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     private String bio;
 
@@ -43,11 +44,11 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Integer id, String username, String password, byte[] profilePicture, String bio, LocalDateTime createdAt, String roles) {
+    public User(Integer id, String username, String password, String imageUrl, String bio, LocalDateTime createdAt, String roles) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.profilePicture = profilePicture;
+        this.imageUrl = imageUrl;
         this.bio = bio;
         this.createdAt = createdAt;
         this.roles = roles;
@@ -77,12 +78,12 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public byte[] getProfilePicture() {
-        return profilePicture;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setProfilePicture(byte[] profilePicture) {
-        this.profilePicture = profilePicture;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getBio() {

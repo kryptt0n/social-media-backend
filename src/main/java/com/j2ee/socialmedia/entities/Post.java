@@ -13,7 +13,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String content;
-    private byte[] image;
+    
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -31,10 +33,10 @@ public class Post {
     public Post() {
     }
 
-    public Post(Integer id, String content, byte[] image, User user, LocalDateTime createdAt) {
+    public Post(Integer id, String content, String imageUrl, User user, LocalDateTime createdAt) {
         this.id = id;
         this.content = content;
-        this.image = image;
+        this.imageUrl = imageUrl;
         this.user = user;
         this.createdAt = createdAt;
     }
@@ -55,12 +57,12 @@ public class Post {
         this.content = content;
     }
 
-    public byte[] getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(byte[] image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public User getUser() {

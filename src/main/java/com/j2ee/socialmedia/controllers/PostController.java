@@ -3,12 +3,14 @@ package com.j2ee.socialmedia.controllers;
 import com.j2ee.socialmedia.dto.PostDTO;
 import com.j2ee.socialmedia.entities.Post;
 import com.j2ee.socialmedia.services.PostService;
+import com.j2ee.socialmedia.services.storage.FileSystemStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +20,12 @@ import java.util.Optional;
 public class PostController {
 
     private final PostService postService;
+    private final FileSystemStorageService storageService;
 
     @Autowired
-    public PostController(PostService postService) {
+    public PostController(PostService postService, FileSystemStorageService storageService) {
         this.postService = postService;
+        this.storageService = storageService;
     }
 
     @GetMapping(path = "/user/{username}")
@@ -57,7 +61,16 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody Post post, Authentication auth) {
+    public ResponseEntity<PostDTO> createPost(@RequestPart("post") Post post, Authentication auth, @RequestParam(value = "file", required = false) MultipartFile file) {
+        if (file != null && !file.isEmpty()) {
+            String originalFilename = file.getOriginalFilename();
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String newFilename = timestamp + "_" + originalFilename;
+            storageService.store(file);
+            String fileUrl = storageService.generateFileUrl(newFilename);
+            post.setImageUrl(fileUrl);
+        }
+
         PostDTO createdPost = postService.create(post, auth.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }

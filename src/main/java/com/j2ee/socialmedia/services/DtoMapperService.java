@@ -19,7 +19,7 @@ public class DtoMapperService {
                 new PostDTO(
                         post.getId(),
                         post.getContent(),
-                        post.getImage(),
+                        post.getImageUrl(),
                         userToUserDTO(username).apply(post.getUser()),
                         post.getCreatedAt(),
                         post.getLikes().stream().anyMatch(like -> like.getUser().getUsername().equals(username)),
@@ -35,7 +35,7 @@ public class DtoMapperService {
     public Function<User, UserDTO> userToUserDTO(String usernameCurrent) {
         return user -> new UserDTO(
                 user.getUsername(),
-                user.getProfilePicture(),
+                user.getImageUrl(),
                 user.getBio(),
                 isFollowed(user, usernameCurrent),
                 user.getFollows().size(),
