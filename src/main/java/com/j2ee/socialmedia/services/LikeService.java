@@ -17,8 +17,8 @@ import java.util.Optional;
 public class LikeService {
 
     private final LikeRepository likeRepository;
-    private PostRepository postRepository;
-    private UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public LikeService(PostRepository postRepository, UserRepository userRepository, LikeRepository likeRepository) {

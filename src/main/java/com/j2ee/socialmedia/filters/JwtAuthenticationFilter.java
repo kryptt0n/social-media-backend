@@ -1,4 +1,4 @@
-package com.j2ee.socialmedia.configurations;
+package com.j2ee.socialmedia.filters;
 
 import com.j2ee.socialmedia.services.JwtService;
 import jakarta.servlet.FilterChain;

@@ -20,8 +20,8 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final DtoMapperService dtoMapperService;
-    private PostRepository postRepository;
-    private UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public CommentService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, DtoMapperService dtoMapperService) {
