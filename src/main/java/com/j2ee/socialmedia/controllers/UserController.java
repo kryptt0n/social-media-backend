@@ -32,7 +32,7 @@ public class UserController {
             String originalFilename = file.getOriginalFilename();
             String timestamp = String.valueOf(System.currentTimeMillis());
             String newFilename = timestamp + "_" + originalFilename;
-            storageService.store(file);
+            storageService.store(file, newFilename);
             String fileUrl = storageService.generateFileUrl(newFilename);
             user.setImageUrl(fileUrl);
         }

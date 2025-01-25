@@ -36,7 +36,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void store(MultipartFile file) {
+    public void store(MultipartFile file, String newFilename) {
         try {
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file.");
@@ -44,9 +44,6 @@ public class FileSystemStorageService implements StorageService {
             if (!Files.exists(rootLocation)) {
                 Files.createDirectories(rootLocation);
             }
-            String originalFilename = file.getOriginalFilename();
-            String timestamp = String.valueOf(System.currentTimeMillis());
-            String newFilename = timestamp + "_" + originalFilename;
             Path destinationFile = this.rootLocation.resolve(
                             Paths.get(newFilename))
                     .normalize().toAbsolutePath();
