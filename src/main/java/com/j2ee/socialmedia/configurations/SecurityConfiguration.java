@@ -14,18 +14,22 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.Set;
 
 @Configuration
 public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final Set<String> excludedEndpoints;
 
     public SecurityConfiguration(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            AuthenticationProvider authenticationProvider
+            AuthenticationProvider authenticationProvider,
+            Set<String> excludedEndpoints
     ) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.excludedEndpoints = excludedEndpoints;
     }
 
     @Bean
@@ -33,11 +37,12 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login", "/files/**").permitAll()
+                        .requestMatchers(excludedEndpoints.toArray(new String[0])).permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
