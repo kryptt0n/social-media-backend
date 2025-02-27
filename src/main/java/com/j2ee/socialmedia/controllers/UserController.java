@@ -1,10 +1,12 @@
 package com.j2ee.socialmedia.controllers;
 
+import com.j2ee.socialmedia.dto.UpdateUserDTO;
 import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.services.UserService;
 import com.j2ee.socialmedia.services.JwtService;
 import com.j2ee.socialmedia.services.storage.FileSystemStorageService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -57,5 +59,62 @@ public class UserController {
             return ResponseEntity.ok(userOptional.get());
 
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/deactivate/{username}")
+    public ResponseEntity<String> deactivateUser(@PathVariable String username, Authentication auth) {
+        if (username.equals(auth.getName())) {
+            userService.deactivateUser(username);
+            return ResponseEntity.ok("User deactivated");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not match");
+        }
+    }
+
+    @PostMapping("/recovery/{username}")
+    public ResponseEntity<String> recoverUser(@PathVariable String username, Authentication auth) {
+        if (username.equals(auth.getName())) {
+            userService.recoverUser(username);
+            return ResponseEntity.ok("User recovered");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not match");
+        }
+    }
+
+    @PostMapping("/set-public")
+    public ResponseEntity<String> setPublic(Authentication auth) {
+        userService.setPublic(auth.getName());
+        return ResponseEntity.ok("User set to public");
+    }
+
+    @PostMapping("/set-private")
+    public ResponseEntity<String> setPrivate(Authentication auth) {
+        userService.setPrivate(auth.getName());
+        return ResponseEntity.ok("User set to private");
+    }
+
+    @DeleteMapping("/delete-user")
+    public ResponseEntity<String> deleteUser(Authentication auth) {
+        userService.deleteUser(auth.getName());
+        return ResponseEntity.ok("User deleted");
+    }
+
+    @PatchMapping("/update-profile/{username}")
+    public ResponseEntity<String> updateUser(@RequestBody UpdateUserDTO updateUserDTO, @PathVariable String username, Authentication auth) {
+        if (!username.equals(auth.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Integer> userIdOptional = userService.getIdByUsername(username);
+        if (userIdOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        Optional<User> updatedUser = userService.updateUser(updateUserDTO, userIdOptional.get());
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.ok("User updated successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Update failed");
+        }
     }
 }
