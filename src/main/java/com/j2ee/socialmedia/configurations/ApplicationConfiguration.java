@@ -1,6 +1,8 @@
 package com.j2ee.socialmedia.configurations;
 
 import com.j2ee.socialmedia.repositories.UserRepository;
+import com.j2ee.socialmedia.services.hashing.HashingService;
+import com.j2ee.socialmedia.services.hashing.Sha256HashingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +12,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -43,5 +48,21 @@ public class ApplicationConfiguration {
         authProvider.setPasswordEncoder(passwordEncoder());
 
         return authProvider;
+    }
+
+    @Bean
+    HashingService hashingService() {
+        return new Sha256HashingService();
+    }
+
+    @Bean
+    Set<String> excludedEndpoints() {
+        return Set.of(
+                "/login",
+                "/register",
+                "/files/**",
+                "/forgot-password",
+                "/reset"
+        );
     }
 }

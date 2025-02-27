@@ -14,6 +14,6 @@ public class SocialmediaApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SocialmediaApplication.class, args);
-        System.out.println("Test");
+        System.out.println("Test2");
     }
 }
