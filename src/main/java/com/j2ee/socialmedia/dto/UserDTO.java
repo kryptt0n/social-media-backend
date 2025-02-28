@@ -5,5 +5,7 @@ public record UserDTO(String username,
                       String bio,
                       boolean isFollowed,
                       Integer followersCount,
-                      Integer followingCount) {
+                      Integer followingCount,
+                      boolean isActive,
+                      boolean isPublic) {
 }

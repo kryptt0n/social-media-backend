@@ -1,13 +1,17 @@
 package com.j2ee.socialmedia.controllers;
 
+
+import com.j2ee.socialmedia.dto.UpdateUserDTO;
 import com.j2ee.socialmedia.dto.ForgotPasswordDTO;
 import com.j2ee.socialmedia.dto.ResetPasswordDTO;
+
 import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.services.PasswordService;
 import com.j2ee.socialmedia.services.UserService;
 import com.j2ee.socialmedia.services.JwtService;
 import com.j2ee.socialmedia.services.storage.FileSystemStorageService;
+
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.util.Optional;
 
@@ -80,6 +85,78 @@ public class UserController {
         String token = authHeader.replace("Bearer ", "");
         passwordService.resetPassword(token, resetPasswordDTO.getNewPassword());
         return ResponseEntity.ok("Password reset");
+    }
+
+    @PostMapping("/deactivate/{username}")
+    public ResponseEntity<String> deactivateUser(@PathVariable String username, Authentication auth) {
+        if (username.equals(auth.getName())) {
+            userService.deactivateUser(username);
+            return ResponseEntity.ok("User deactivated");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not match");
+        }
+    }
+
+    @PostMapping("/recovery/{username}")
+    public ResponseEntity<String> recoverUser(@PathVariable String username, Authentication auth) {
+        if (username.equals(auth.getName())) {
+            userService.recoverUser(username);
+            return ResponseEntity.ok("User recovered");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not match");
+        }
+    }
+
+    @PostMapping("/set-public")
+    public ResponseEntity<String> setPublic(Authentication auth) {
+        userService.setPublic(auth.getName());
+        return ResponseEntity.ok("User set to public");
+    }
+
+    @PostMapping("/set-private")
+    public ResponseEntity<String> setPrivate(Authentication auth) {
+        userService.setPrivate(auth.getName());
+        return ResponseEntity.ok("User set to private");
+    }
+
+    @DeleteMapping("/delete-user")
+    public ResponseEntity<String> deleteUser(Authentication auth) {
+        userService.deleteUser(auth.getName());
+        return ResponseEntity.ok("User deleted");
+    }
+
+    @PatchMapping("/update-profile/{username}")
+    public ResponseEntity<String> updateUser(
+            Authentication auth,
+            @RequestPart("user") UpdateUserDTO updateUserDTO,
+            @PathVariable String username,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
+        if (!username.equals(auth.getName())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Integer> userIdOptional = userService.getIdByUsername(username);
+        if (userIdOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if (file != null && !file.isEmpty()) {
+            String originalFilename = file.getOriginalFilename();
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String newFilename = timestamp + "_" + originalFilename;
+            storageService.store(file, newFilename);
+            String fileUrl = storageService.generateFileUrl(newFilename);
+            updateUserDTO.setImageUrl(fileUrl);
+        }
+
+        Optional<User> updatedUser = userService.updateUser(updateUserDTO, userIdOptional.get());
+
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.ok("User updated successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Update failed");
+        }
     }
 
 }

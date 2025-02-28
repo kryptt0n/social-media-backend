@@ -1,5 +1,6 @@
 package com.j2ee.socialmedia.services;
 
+import com.j2ee.socialmedia.dto.UpdateUserDTO;
 import com.j2ee.socialmedia.dto.UserDTO;
 import com.j2ee.socialmedia.entities.User;
 import com.j2ee.socialmedia.repositories.UserRepository;
@@ -46,5 +47,41 @@ public class UserService {
             return foundUser;
         }
         return Optional.empty();
+    }
+
+    public void deactivateUser(String username) {
+        userRepository.deactivateUser(username);
+    }
+
+    public void recoverUser(String username) {
+        userRepository.recoverUser(username);
+    }
+
+    public void setPublic(String username) {
+        userRepository.setPublic(username);
+    }
+
+    public void setPrivate(String username) {
+        userRepository.setPrivate(username);
+    }
+
+    public void deleteUser(String username) {
+        userRepository.deleteByUsername(username);
+    }
+
+    public Optional<User> updateUser(UpdateUserDTO updateUserDTO, Integer id) {
+        return userRepository.findById(id).map(user -> {
+            if (updateUserDTO.getImageUrl() != null) {
+                user.setImageUrl(updateUserDTO.getImageUrl());
+            }
+            if (updateUserDTO.getBio() != null) {
+                user.setBio(updateUserDTO.getBio());
+            }
+            return userRepository.save(user);
+        });
+    }
+
+    public Optional<Integer> getIdByUsername(String username) {
+        return userRepository.getIdByUsername(username);
     }
 }

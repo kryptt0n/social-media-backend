@@ -16,6 +16,8 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(unique = true)
     private String username;
     private String password;
 
@@ -43,10 +45,18 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "followed", fetch = FetchType.EAGER)
     private Set<Follow> follows = new HashSet<>();
 
+    @Column(name = "is_public")
+    private boolean isPublic = true;
+
+    @Column(name = "is_active")
+    private boolean isActive = true;
+
     public User() {
     }
 
-    public User(Integer id, String username, String password, String imageUrl, String bio, LocalDateTime createdAt, String roles, String email) {
+
+    public User(Integer id, String username, String password, String imageUrl, String bio, LocalDateTime createdAt, String roles, String email, boolean isPublic, boolean isActive) {
+
         this.id = id;
         this.username = username;
         this.password = password;
@@ -55,6 +65,8 @@ public class User implements UserDetails {
         this.createdAt = createdAt;
         this.roles = roles;
         this.email = email;
+        this.isPublic = isPublic;
+        this.isActive = isActive;
     }
 
     public Integer getId() {
@@ -176,5 +188,21 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(boolean isPublic) {
+        isPublic = isPublic;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        isActive = isActive;
     }
 }
