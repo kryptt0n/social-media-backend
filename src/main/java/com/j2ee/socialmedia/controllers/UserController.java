@@ -100,7 +100,12 @@ public class UserController {
     }
 
     @PatchMapping("/update-profile/{username}")
-    public ResponseEntity<String> updateUser(@RequestBody UpdateUserDTO updateUserDTO, @PathVariable String username, Authentication auth) {
+    public ResponseEntity<String> updateUser(
+            Authentication auth,
+            @RequestPart("user") UpdateUserDTO updateUserDTO,
+            @PathVariable String username,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
         if (!username.equals(auth.getName())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -110,7 +115,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
+        if (file != null && !file.isEmpty()) {
+            String originalFilename = file.getOriginalFilename();
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String newFilename = timestamp + "_" + originalFilename;
+            storageService.store(file, newFilename);
+            String fileUrl = storageService.generateFileUrl(newFilename);
+            updateUserDTO.setImageUrl(fileUrl);
+        }
+
         Optional<User> updatedUser = userService.updateUser(updateUserDTO, userIdOptional.get());
+
         if (updatedUser.isPresent()) {
             return ResponseEntity.ok("User updated successfully");
         } else {
