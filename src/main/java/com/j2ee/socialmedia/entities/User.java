@@ -31,6 +31,8 @@ public class User implements UserDetails {
 
     private String roles;
 
+    private String email;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Notification> notifications = new HashSet<>();
 
@@ -52,7 +54,9 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(Integer id, String username, String password, String imageUrl, String bio, LocalDateTime createdAt, String roles, boolean isPublic, boolean isActive) {
+
+    public User(Integer id, String username, String password, String imageUrl, String bio, LocalDateTime createdAt, String roles, String email, boolean isPublic, boolean isActive) {
+
         this.id = id;
         this.username = username;
         this.password = password;
@@ -60,6 +64,7 @@ public class User implements UserDetails {
         this.bio = bio;
         this.createdAt = createdAt;
         this.roles = roles;
+        this.email = email;
         this.isPublic = isPublic;
         this.isActive = isActive;
     }
@@ -110,6 +115,14 @@ public class User implements UserDetails {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Set<Notification> getNotifications() {

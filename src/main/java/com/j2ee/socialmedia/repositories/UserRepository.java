@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUsername(String username);
 
+    Optional<User> findByEmail(String email);
+  
     @Modifying
     @Transactional
     @Query("UPDATE User u SET u.isActive = false WHERE u.username = :username")
@@ -41,4 +43,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("SELECT u.id FROM User u WHERE u.username = :username")
     Optional<Integer> getIdByUsername(@Param("username") String username);
+
 }
