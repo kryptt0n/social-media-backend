@@ -44,4 +44,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u.id FROM User u WHERE u.username = :username")
     Optional<Integer> getIdByUsername(@Param("username") String username);
 
+    long countByIsPublicTrue();
+    long countByIsPublicFalse();
+
 }
