@@ -58,11 +58,6 @@ public class UserController {
     public ResponseEntity<String> login(@RequestBody User user) {
         Optional<User> authenticatedUser = userService.authenticateUser(user);
         if (authenticatedUser.isPresent()) {
-
-            if(!user.isAccountNonLocked()){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
             String token = jwtService.generateToken(authenticatedUser.get());
             return ResponseEntity.ok(token);
         }
