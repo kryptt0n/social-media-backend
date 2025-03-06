@@ -21,6 +21,8 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "reported")
+    private Boolean reported = false;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -96,4 +98,13 @@ public class Post {
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
     }
+    public Boolean getReported() {
+        return reported;
+    }
+
+    public void setReported(Boolean reported) {
+        this.reported = reported;
+    }
+
+
 }

@@ -62,7 +62,9 @@ public class ApplicationConfiguration {
                 "/register",
                 "/files/**",
                 "/forgot-password",
-                "/reset"
+                "/reset",
+                "/api/admin/**",
+                "/admin/**"
         );
     }
 }

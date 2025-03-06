@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,16 +18,18 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.util.Set;
-
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final HandlerExceptionResolver handlerExceptionResolver;
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+
+    private final HandlerExceptionResolver handlerExceptionResolver;
+
     private final Set<String> excludedEndpoints;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
@@ -42,12 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        final String requestUri = request.getRequestURI();
 
 //        if (excludedEndpoints.contains(request.getRequestURI())) {
 //            filterChain.doFilter(request, response);
@@ -63,14 +63,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        final String authHeader = request.getHeader("Authorization");
+
         try {
             final String jwt = authHeader.substring(7);
             final String username = jwtService.extractUsername(jwt);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            if (username != null && authentication == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+        try {
+            jwt = authHeader.substring(7);
+            userEmail = jwtService.extractUsername(jwt);
+
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+              
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -83,10 +93,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+        }catch (Exception exception) {
+                handlerExceptionResolver.resolveException(request, response, null, exception);
+                return;
+            }
 
             filterChain.doFilter(request, response);
-        } catch (Exception exception) {
-            handlerExceptionResolver.resolveException(request, response, null, exception);
-        }
+
     }
 }

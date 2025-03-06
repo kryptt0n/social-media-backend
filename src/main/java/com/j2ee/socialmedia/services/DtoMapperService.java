@@ -23,7 +23,8 @@ public class DtoMapperService {
                         userToUserDTO(username).apply(post.getUser()),
                         post.getCreatedAt(),
                         post.getLikes().stream().anyMatch(like -> like.getUser().getUsername().equals(username)),
-                        post.getLikes().size()
+                        post.getLikes().size(),
+                        post.getReported()
                 );
     }
 

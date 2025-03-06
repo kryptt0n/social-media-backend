@@ -10,5 +10,6 @@ public record PostDTO(Integer id,
                       UserDTO user,
                       LocalDateTime createdAt,
                       boolean likedByCurrentUser,
-                      int totalLikes) {
+                      int totalLikes,
+                      boolean reported) {
 }
