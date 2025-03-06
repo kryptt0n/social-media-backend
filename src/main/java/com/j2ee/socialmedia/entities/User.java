@@ -1,6 +1,10 @@
 package com.j2ee.socialmedia.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -12,6 +16,10 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,122 +56,8 @@ public class User implements UserDetails {
     @Column(name = "is_public")
     private boolean isPublic = true;
 
-    @Column(name = "is_active")
-    private boolean isActive = true;
-
-    public User() {
-    }
-
-
-    public User(Integer id, String username, String password, String imageUrl, String bio, LocalDateTime createdAt, String roles, String email, boolean isPublic, boolean isActive) {
-
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.imageUrl = imageUrl;
-        this.bio = bio;
-        this.createdAt = createdAt;
-        this.roles = roles;
-        this.email = email;
-        this.isPublic = isPublic;
-        this.isActive = isActive;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Set<Notification> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(Set<Notification> notifications) {
-        this.notifications = notifications;
-    }
-
-    public Set<Post> getPosts() {
-        return posts;
-    }
-
-    public void setPosts(Set<Post> posts) {
-        this.posts = posts;
-    }
-
-    public Set<Follow> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(Set<Follow> followers) {
-        this.followers = followers;
-    }
-
-    public Set<Follow> getFollows() {
-        return follows;
-    }
-
-    public void setFollows(Set<Follow> follows) {
-        this.follows = follows;
-    }
-
-    public String getRoles() {
-        return roles;
-    }
-
-    public void setRoles(String roles) {
-        this.roles = roles;
-    }
+    @Column(name = "is_locked")
+    private boolean isAccountNonLocked = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -171,38 +65,8 @@ public class User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.isAccountNonLocked;
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public boolean getIsPublic() {
-        return isPublic;
-    }
-
-    public void setIsPublic(boolean isPublic) {
-        isPublic = isPublic;
-    }
-
-    public boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(boolean isActive) {
-        isActive = isActive;
-    }
 }

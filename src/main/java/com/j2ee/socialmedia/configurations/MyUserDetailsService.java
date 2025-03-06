@@ -30,7 +30,7 @@ public class MyUserDetailsService implements UserDetailsService {
                 .password(user.getPassword())
                 .roles(roles)
                 .disabled(false)
-                .accountLocked(false)
+                .accountLocked(user.isAccountNonLocked())
                 .build();
     }
 }

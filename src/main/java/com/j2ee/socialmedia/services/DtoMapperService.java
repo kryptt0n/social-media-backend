@@ -41,8 +41,8 @@ public class DtoMapperService {
                 isFollowed(user, usernameCurrent),
                 user.getFollows().size(),
                 user.getFollowers().size(),
-                user.getIsActive(),
-                user.getIsPublic()
+                user.isAccountNonLocked(),
+                user.isPublic()
         );
     }
 
