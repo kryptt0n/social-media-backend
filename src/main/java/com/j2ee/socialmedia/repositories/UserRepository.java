@@ -18,12 +18,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
   
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.isActive = false WHERE u.username = :username")
+    @Query("UPDATE User u SET u.isAccountNonLocked = false WHERE u.username = :username")
     void deactivateUser(@Param("username") String username);
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.isActive = true WHERE u.username = :username")
+    @Query("UPDATE User u SET u.isAccountNonLocked = true WHERE u.username = :username")
     void recoverUser(@Param("username") String username);
 
     @Modifying
