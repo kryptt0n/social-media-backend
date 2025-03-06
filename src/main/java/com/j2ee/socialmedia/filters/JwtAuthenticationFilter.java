@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -23,13 +22,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-
     private final HandlerExceptionResolver handlerExceptionResolver;
-
-    private final Set<String> excludedEndpoints;
-
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
+    private final Set<String> excludedEndpoints; // explicitly typed
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
@@ -49,25 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String requestUri = request.getRequestURI();
 
-//        if (excludedEndpoints.contains(request.getRequestURI())) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-
-        String requestPath = request.getRequestURI();
-
-        for (String pattern : excludedEndpoints) {
-            if (pathMatcher.match(pattern, requestPath)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+        if (excludedEndpoints.contains(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
         final String authHeader = request.getHeader("Authorization");
-
-        try {
-            final String jwt = authHeader.substring(7);
-            final String username = jwtService.extractUsername(jwt);
+        final String jwt;
+        final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -80,7 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-              
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -94,11 +76,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }catch (Exception exception) {
-                handlerExceptionResolver.resolveException(request, response, null, exception);
-                return;
-            }
+            handlerExceptionResolver.resolveException(request, response, null, exception);
+            return;
+        }
 
-            filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response);
 
     }
 }
