@@ -24,15 +24,6 @@ public class MsSsIdentityApplication {
 				c.setPassword(encoder.encode("password")); // now using bcrypt!
 				repo.save(c);
 				System.out.println("📦 Inserted dummy user: test@example.com");
-			} else {
-				repo.deleteAll();
-
-				// Recreate test credential
-				Credential c = new Credential();
-				c.setEmail("test@example.com");
-				c.setPassword(encoder.encode("password"));
-				repo.save(c);
-				System.out.println("📦 Recreated dummy user: test@example.com");
 			}
 		};
 	}
