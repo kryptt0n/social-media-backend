@@ -10,8 +10,8 @@ import lombok.Data;
 public class Media {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long sourceId;
+    private Integer id;
+    private String sourceId;
     private String s3Key;
     @Enumerated
     private Provider provider;

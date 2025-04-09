@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MediaRepository extends JpaRepository<Media, Long> {
-    Optional<Media> findBySourceIdAndProvider(Long sourceId, Provider provider);
+public interface MediaRepository extends JpaRepository<Media, Integer> {
+    Optional<Media> findBySourceIdAndProvider(String sourceId, Provider provider);
 }

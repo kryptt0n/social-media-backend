@@ -19,7 +19,6 @@ public class LikeService {
         Like like = new Like();
         like.setUsername(likeRequestDto.getUsername());
         like.setPostId(likeRequestDto.getPostId());
-        like.setCreatedAt(LocalDateTime.now());
         return likeRepository.save(like);
     }
 

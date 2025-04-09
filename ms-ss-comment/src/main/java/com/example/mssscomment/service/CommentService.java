@@ -24,7 +24,6 @@ public class CommentService {
         comment.setContent(commentRequestDto.getContent());
         comment.setUsername(commentRequestDto.getUsername());
         comment.setPostId(commentRequestDto.getPostId());
-        comment.setCreatedAt(LocalDateTime.now());
         return commentRepository.save(comment);
     }
 
