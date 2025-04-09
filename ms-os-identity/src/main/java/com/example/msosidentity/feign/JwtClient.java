@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface JwtClient {
     @PostMapping("/jwt")
     JwtKeyDto generateJwt(@RequestBody GenerateTokenDto generateTokenDto);
-    @PostMapping("/jwt/validate")
+    @PostMapping("/jwt/introspect")
     JwtKeyDto validate(@RequestBody TokenValidateDto tokenValidateDto);
 }

@@ -1,6 +1,7 @@
 package com.example.mssscredentials.controllers;
 
 import com.example.mssscredentials.dto.CredentialsDto;
+import com.example.mssscredentials.dto.CredentialsRegisterDto;
 import com.example.mssscredentials.services.CredentialsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +22,14 @@ public class CredentialsController {
         this.credentialsService = credentialsService;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/token")
     public ResponseEntity<Boolean> authenticate(@RequestBody CredentialsDto credentials) {
         return ResponseEntity.ok(credentialsService.authenticate(credentials.getUsername(), credentials.getPassword()));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody CredentialsDto credentials) {
-        log.warn("Attempting to register credentials with username {}", credentials.getUsername());
-        credentialsService.register(credentials.getUsername(), credentials.getPassword());
+    public ResponseEntity<Void> register(@RequestBody CredentialsRegisterDto credentials) {
+        credentialsService.register(credentials.getUsername(), credentials.getPassword(), credentials.getUserId());
         return ResponseEntity.ok().build();
     }
 }

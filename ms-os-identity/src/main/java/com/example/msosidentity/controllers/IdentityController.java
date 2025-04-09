@@ -19,7 +19,7 @@ public class IdentityController {
         this.credentialClient = credentialClient;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/token")
     public ResponseEntity<JwtKeyDto> login(@RequestBody CredentialsDto credentials) {
         if (credentialClient.authenticate(credentials)) {
             JwtKeyDto jwtKeyDto = jwtClient.generateJwt(new GenerateTokenDto("test"));

@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface CredentialClient {
     @PostMapping("/credentials/register")
     void register(@RequestBody CredentialsDto credentials);
-    @PostMapping("/credentials/authenticate")
+    @PostMapping("/credentials/token")
     Boolean authenticate(@RequestBody CredentialsDto credentials);
 }

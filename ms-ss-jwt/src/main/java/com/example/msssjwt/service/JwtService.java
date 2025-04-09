@@ -1,6 +1,7 @@
 package com.example.msssjwt.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -49,9 +50,13 @@ public class JwtService {
                 .getBody();
     }
 
-    public boolean isTokenValid(String token, String username) {
-        final String extractUsername = extractUsername(token);
-        return extractUsername.equals(username);
+    public boolean isTokenValid(String token) {
+        try {
+            extractAllClaims(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 
 }

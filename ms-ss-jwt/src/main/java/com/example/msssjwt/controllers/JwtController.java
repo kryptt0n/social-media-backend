@@ -23,9 +23,9 @@ public class JwtController {
         return ResponseEntity.ok(jwtKeyDto);
     }
 
-    @PostMapping("/validate")
+    @PostMapping("/introspect")
     public ResponseEntity<JwtKeyDto> validateToken(@RequestBody TokenValidateDto validateDto) {
-        if (jwtService.isTokenValid(validateDto.getToken(), validateDto.getUsername()))
+        if (jwtService.isTokenValid(validateDto.getToken()))
             return ResponseEntity.ok(new JwtKeyDto(validateDto.getToken()));
         else
             return ResponseEntity.badRequest().build();
