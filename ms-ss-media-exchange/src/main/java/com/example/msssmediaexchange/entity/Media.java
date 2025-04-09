@@ -13,7 +13,6 @@ public class Media {
     private Long id;
     private Long sourceId;
     private String s3Key;
-    private String contentType;
     @Enumerated
     private Provider provider;
 }
