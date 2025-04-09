@@ -1,6 +1,7 @@
 package com.example.mssspostcrud.service;
 
 import com.example.mssspostcrud.dto.PostRequestDto;
+import com.example.mssspostcrud.dto.StatsResponseDto;
 import com.example.mssspostcrud.entity.Post;
 import com.example.mssspostcrud.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -41,5 +45,19 @@ public class PostService {
         return postRepository.findByUsernameIn(usernameList, pageable);
     }
 
+    public List<Post> getReportedPosts() {
+        return postRepository.findByReported(true);
+    }
 
+    public StatsResponseDto getStats() {
+        StatsResponseDto statsDto = new StatsResponseDto();
+        statsDto.setTotalPosts(postRepository.count());
+        statsDto.setReportedPosts(postRepository.countByReportedTrue());
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        statsDto.setDailyPosts(postRepository.countByCreatedAtBetween(startOfDay, endOfDay));
+
+        return statsDto;
+    }
 }
