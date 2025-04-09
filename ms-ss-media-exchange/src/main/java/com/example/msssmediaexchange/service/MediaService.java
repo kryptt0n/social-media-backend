@@ -34,34 +34,22 @@ public class MediaService {
 
             byte[] imageData = Base64.getDecoder().decode(payload.getBase64Image());
             String s3Key = generateS3Key(payload.getSourceId(), payload.getProvider());
-            String contentType = determineContentType(imageData);
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(s3Key)
-                    .contentType(contentType)
                     .build();
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageData));
 
             Media media = new Media();
             media.setId(payload.getSourceId());
             media.setS3Key(s3Key);
-            media.setContentType(contentType);
             media.setProvider(payload.getProvider());
             mediaRepository.save(media);
     }
 
     private String generateS3Key(Long mediaId, Provider provider) {
         return "media/" + provider + "/" + mediaId + "/" + UUID.randomUUID();
-    }
-
-    private String determineContentType(byte[] imageData) {
-        if (imageData.length > 2 && imageData[0] == (byte) 0xFF && imageData[1] == (byte) 0xD8) {
-            return "image/jpeg";
-        } else if (imageData.length > 8 && imageData[0] == (byte) 0x89 && imageData[1] == (byte) 0x50 && imageData[2] == (byte) 0x4E && imageData[3] == (byte) 0x47) {
-            return "image/png";
-        }
-        return "application/octet-stream";
     }
 
     public Optional<Media> findBySourceIdAndProvider(Long sourceId, Provider provider){
