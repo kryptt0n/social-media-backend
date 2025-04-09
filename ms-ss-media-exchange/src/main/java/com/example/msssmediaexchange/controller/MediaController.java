@@ -19,7 +19,7 @@ public class MediaController {
     private final MediaService mediaService;
 
     @GetMapping("/{sourceId}/{provider}")
-    public Optional<Media> findBySourceIdAndProvider(@PathVariable Long sourceId, @PathVariable Provider provider){
+    public Optional<Media> findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider){
         return mediaService.findBySourceIdAndProvider(sourceId, provider);
     }
 }
