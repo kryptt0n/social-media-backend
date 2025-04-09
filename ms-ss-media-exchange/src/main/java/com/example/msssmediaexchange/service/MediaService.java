@@ -42,17 +42,17 @@ public class MediaService {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageData));
 
             Media media = new Media();
-            media.setId(payload.getSourceId());
+            media.setSourceId(payload.getSourceId());
             media.setS3Key(s3Key);
             media.setProvider(payload.getProvider());
             mediaRepository.save(media);
     }
 
-    private String generateS3Key(Long mediaId, Provider provider) {
+    private String generateS3Key(String mediaId, Provider provider) {
         return "media/" + provider + "/" + mediaId + "/" + UUID.randomUUID();
     }
 
-    public Optional<Media> findBySourceIdAndProvider(Long sourceId, Provider provider){
+    public Optional<Media> findBySourceIdAndProvider(String sourceId, Provider provider){
         return mediaRepository.findBySourceIdAndProvider(sourceId, provider);
     }
 }
