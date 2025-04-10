@@ -23,6 +23,7 @@ public class Post {
     private String content;
     private String imageUrl;
 
+    @Builder.Default
     private Boolean reported = false;
     private LocalDateTime createdAt;
 }
