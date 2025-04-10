@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 @Builder
 public class PostResponseDto {
     private Integer id;
+    private String username;
     private String content;
     private String imageUrl;
-    private Integer userId;
     private LocalDateTime createdAt;
 }
-

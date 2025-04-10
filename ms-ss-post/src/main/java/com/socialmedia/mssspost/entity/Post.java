@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "post")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,12 +19,16 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer userId;
+    // Kept only for legacy support
+    private Long userId;
+
+    private String username;
 
     private String content;
     private String imageUrl;
 
     @Builder.Default
     private Boolean reported = false;
+
     private LocalDateTime createdAt;
 }

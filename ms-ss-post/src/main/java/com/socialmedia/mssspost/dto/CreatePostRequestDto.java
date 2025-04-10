@@ -5,15 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class PostRequestDto {
+public class CreatePostRequestDto {
+    @NotNull(message = "Username is required")
+    private String username;
+
     @NotBlank(message = "Content must not be empty")
     private String content;
+
     private String imageUrl;
-
-    @NotNull(message = "User ID is required")
-    private Integer userId;
-
-    @NotBlank(message = "Username is required")
-    private String username;
 }
-
