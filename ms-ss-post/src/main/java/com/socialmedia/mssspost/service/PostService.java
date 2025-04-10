@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,22 @@ public class PostService {
         return postRepository.findById(id)
                 .map(this::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    public List<PostResponseDto> getByUserId(Integer userId) {
+        List<Post> posts = postRepository.findByUserId(userId);
+        return posts.stream().map(this::toResponse).toList();
+    }
+
+    public PostResponseDto update(Integer postId, PostRequestDto request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        post.setContent(request.getContent());
+        post.setImageUrl(request.getImageUrl());
+
+        Post updated = postRepository.save(post);
+        return toResponse(updated);
     }
 
     public void deleteById(Integer id) {

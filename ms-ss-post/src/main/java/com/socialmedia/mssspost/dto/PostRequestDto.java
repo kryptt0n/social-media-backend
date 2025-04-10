@@ -6,10 +6,11 @@ import lombok.Data;
 
 @Data
 public class PostRequestDto {
-    @NotBlank
+    @NotBlank(message = "Content must not be empty")
     private String content;
     private String imageUrl;
-    @NotNull
+
+    @NotNull(message = "User ID is required")
     private Integer userId;
 }
 
