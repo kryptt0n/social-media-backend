@@ -35,17 +35,11 @@ public class PostController {
 
     // Get posts from followed users
     // This will be handled through orchestration. Here, we just stub the endpoint.
-    @GetMapping("/followed")
-    public ResponseEntity<List<PostResponseDto>> getPostsFromFollowedUsers(
-            @RequestHeader("X-Followed-Usernames") List<String> followedUsernames
-    ) {
-        // In the real impl, the gateway or orchestration will give me the followed usernames
-        // For now, simulate combining results:
-        List<PostResponseDto> allPosts = followedUsernames.stream()
-                .flatMap(username -> postService.getPostsByUsername(username).stream())
-                .toList();
+    @GetMapping("/followed/{username}")
+    public ResponseEntity<List<PostResponseDto>> getPostsFromFollowedUsers() {
+        // request to users to get all followed users
 
-        return ResponseEntity.ok(allPosts);
+        return ResponseEntity.notFound().build();
     }
 
     // Create a new post
