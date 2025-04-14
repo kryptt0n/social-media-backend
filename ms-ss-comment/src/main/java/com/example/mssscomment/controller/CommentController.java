@@ -1,8 +1,7 @@
 package com.example.mssscomment.controller;
 
 import com.example.mssscomment.dto.CommentRequestDto;
-import com.example.mssscomment.entity.Comment;
-import com.example.mssscomment.repository.CommentRepository;
+import com.example.mssscomment.dto.CommentResponseDto;
 import com.example.mssscomment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +16,12 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<Comment> createComment(@RequestBody CommentRequestDto requestDto) {
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto requestDto) {
         return ResponseEntity.ok(commentService.createComment(requestDto));
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<List<Comment>> getCommentsByPost(@PathVariable Integer postId) {
+    public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Integer postId) {
         return ResponseEntity.ok(commentService.getCommentByPost(postId));
     }
 
