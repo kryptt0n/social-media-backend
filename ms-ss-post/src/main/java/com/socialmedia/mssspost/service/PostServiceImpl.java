@@ -2,16 +2,21 @@ package com.socialmedia.mssspost.service;
 
 import com.socialmedia.mssspost.dto.CreatePostRequestDto;
 import com.socialmedia.mssspost.dto.PostResponseDto;
+import com.socialmedia.mssspost.dto.StatsResponseDto;
 import com.socialmedia.mssspost.dto.UpdatePostRequestDto;
 import com.socialmedia.mssspost.entity.Post;
 import com.socialmedia.mssspost.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +42,6 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
-//        post.setContent(request.getContent());
-//        post.setImageUrl(request.getImageUrl());
         post.setContent(request.getContent());
         Post updated = postRepository.save(post);
 
@@ -55,8 +58,6 @@ public class PostServiceImpl implements PostService {
     }
     @Override
     public List<PostResponseDto> getAllPosts() {
-//        List<Post> posts = postRepository.findAll();
-//        return posts.stream().map(this::toResponse).toList();
 
         return postRepository.findAll()
                 .stream()
@@ -71,19 +72,45 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostResponseDto> getPostsByUsername(String username) {
-        return postRepository.findAllByUsername(username, Sort.by(Sort.Direction.DESC, "createdAt"))
+    public Page<PostResponseDto> searchPosts(String keyword, Pageable pageable) {
+        Page<Post> posts = (keyword == null || keyword.isBlank())
+                ? postRepository.findAll(pageable)
+                : postRepository.findByContentContainingIgnoreCase(keyword, pageable);
+
+        return posts.map(this::toResponse);
+    }
+
+    @Override
+    public Page<PostResponseDto> getPostsByUsername(String username, Pageable pageable) {
+        return postRepository.findByUsername(username, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    public Page<PostResponseDto> getByFollowedUsernames(List<String> usernames, Pageable pageable) {
+        return postRepository.findByUsernameIn(usernames, pageable)
+                .map(this::toResponse);
+    }
+
+    @Override
+    public List<PostResponseDto> getReportedPosts() {
+        return postRepository.findByReported(true)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     @Override
-    public List<PostResponseDto> getByFollowedUsernames(List<String> usernames) {
-        List<Post> posts = postRepository.findAllByUsernameIn(usernames, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return posts.stream()
-                .map(this::toResponse)
-                .toList();
+    public StatsResponseDto getStats() {
+        StatsResponseDto statsDto = new StatsResponseDto();
+        statsDto.setTotalPosts(postRepository.count());
+        statsDto.setReportedPosts(postRepository.countByReportedTrue());
+
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        statsDto.setDailyPosts(postRepository.countByCreatedAtBetween(startOfDay, endOfDay));
+
+        return statsDto;
     }
 
     private PostResponseDto toResponse(Post post) {

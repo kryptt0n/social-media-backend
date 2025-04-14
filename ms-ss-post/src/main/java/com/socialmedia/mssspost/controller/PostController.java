@@ -2,10 +2,15 @@ package com.socialmedia.mssspost.controller;
 
 import com.socialmedia.mssspost.dto.CreatePostRequestDto;
 import com.socialmedia.mssspost.dto.PostResponseDto;
+import com.socialmedia.mssspost.dto.StatsResponseDto;
 import com.socialmedia.mssspost.dto.UpdatePostRequestDto;
 import com.socialmedia.mssspost.service.PostServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +24,23 @@ public class PostController {
     private final PostServiceImpl postService;
 
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<PostResponseDto>> searchPosts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return ResponseEntity.ok(postService.searchPosts(keyword, pageable));
+    }
+
     // Get all posts created by a specific user
     @GetMapping("/user/{username}")
-    public ResponseEntity<List<PostResponseDto>> getPostsByUsername(@PathVariable String username) {
-        List<PostResponseDto> posts = postService.getPostsByUsername(username);
+    public ResponseEntity<Page<PostResponseDto>> getPostsByUsername(@PathVariable String username,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<PostResponseDto> posts = postService.getPostsByUsername(username, pageable);
         return posts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(posts);
     }
 
@@ -37,8 +55,7 @@ public class PostController {
     // This will be handled through orchestration. Here, we just stub the endpoint.
     @GetMapping("/followed/{username}")
     public ResponseEntity<List<PostResponseDto>> getPostsFromFollowedUsers() {
-        // request to users to get all followed users
-
+        // todo
         return ResponseEntity.notFound().build();
     }
 
@@ -60,6 +77,16 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Integer postId) {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/reported")
+    public ResponseEntity<List<PostResponseDto>> getReportedPosts() {
+        return ResponseEntity.ok(postService.getReportedPosts());
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<StatsResponseDto> getStats() {
+        return ResponseEntity.ok(postService.getStats());
     }
 }
 
