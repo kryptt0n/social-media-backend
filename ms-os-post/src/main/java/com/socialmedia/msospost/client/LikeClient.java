@@ -2,10 +2,7 @@ package com.socialmedia.msospost.client;
 
 import com.socialmedia.msospost.dto.LikeRequestDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "ms-ss-like")
 public interface LikeClient {
@@ -16,5 +13,7 @@ public interface LikeClient {
     @PostMapping("/like")
     void likePost(@RequestBody LikeRequestDto requestDto);
 
+    @DeleteMapping("/like")
+    void unlikePost(@RequestBody LikeRequestDto requestDto);
 }
 

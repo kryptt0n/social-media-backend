@@ -4,6 +4,7 @@ import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.PostWorkflowRunner;
 import com.socialmedia.msospost.sequence.processor.LikePostProcessor;
+import com.socialmedia.msospost.sequence.processor.UnlikePostProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ public class PostOrchestrationController {
 
     private final PostWorkflowRunner runner;
     private final LikePostProcessor likePostProcessor;
+    private final UnlikePostProcessor unlikePostProcessor;
 
     @GetMapping("/post-feed/{postId}")
     public ResponseEntity<PostFeedItemDto> getFeed(@PathVariable Integer postId) {
@@ -62,5 +64,14 @@ public class PostOrchestrationController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/unlike")
+    public ResponseEntity<Void> unlikePost(@RequestBody LikeRequestDto requestDto) {
+        PostWorkflowContext context = new PostWorkflowContext();
+        context.setUsername(requestDto.getUsername());
+        context.setPostId(requestDto.getPostId());
 
+        unlikePostProcessor.process(context);
+
+        return ResponseEntity.ok().build();
+    }
 }
