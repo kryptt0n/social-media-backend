@@ -3,6 +3,7 @@ package com.socialmedia.msospost.controller;
 import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.PostWorkflowRunner;
+import com.socialmedia.msospost.sequence.processor.LikePostProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostOrchestrationController {
 
     private final PostWorkflowRunner runner;
+    private final LikePostProcessor likePostProcessor;
 
     @GetMapping("/post-feed/{postId}")
     public ResponseEntity<PostFeedItemDto> getFeed(@PathVariable Integer postId) {
@@ -48,5 +50,17 @@ public class PostOrchestrationController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(context.getPost());
     }
+
+    @PostMapping("/like")
+    public ResponseEntity<Void> likePost(@RequestBody LikeRequestDto requestDto) {
+        PostWorkflowContext context = new PostWorkflowContext();
+        context.setUsername(requestDto.getUsername());
+        context.setPostId(requestDto.getPostId());
+
+        likePostProcessor.process(context); // If not using runner, call directly
+
+        return ResponseEntity.ok().build();
+    }
+
 
 }
