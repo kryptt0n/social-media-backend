@@ -1,5 +1,6 @@
 package com.socialmedia.msospost.controller;
 
+import com.socialmedia.msospost.client.PostClient;
 import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.PostWorkflowRunner;
@@ -8,9 +9,14 @@ import com.socialmedia.msospost.sequence.processor.UnlikePostProcessor;
 import com.socialmedia.msospost.sequence.processor.DeletePostProcessor;
 import com.socialmedia.msospost.service.CommentOrchestratorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +28,77 @@ public class PostOrchestrationController {
     private final UnlikePostProcessor unlikePostProcessor;
     private final CommentOrchestratorService commentOrchestratorService;
     private final DeletePostProcessor deletePostProcessor;
+    private final PostClient postClient;
+
+    @GetMapping("/posts/search")
+    public ResponseEntity<Page<PostFeedItemDto>> searchPosts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<PostResponseDto> postPage = postClient.searchPosts(keyword, page, size);
+        List<PostFeedItemDto> enriched = postPage.getContent().stream()
+                .map(post -> {
+                    PostWorkflowContext ctx = new PostWorkflowContext();
+                    ctx.setPostId(post.getId());
+                    runner.runFetchFlow(ctx);
+                    return ctx.getFinalDto();
+                }).collect(Collectors.toList());
+
+        Page<PostFeedItemDto> enrichedPage = new PageImpl<>(enriched, postPage.getPageable(), postPage.getTotalElements());
+        return ResponseEntity.ok(enrichedPage);    }
+
+    @GetMapping("/posts/user/{username}")
+    public ResponseEntity<Page<PostFeedItemDto>> getPostsByUser(@PathVariable String username,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size) {
+        Page<PostResponseDto> postPage = postClient.getPostsByUsername(username, page, size);
+        List<PostFeedItemDto> enriched = postPage.getContent().stream().map(post -> {
+            PostWorkflowContext ctx = new PostWorkflowContext();
+            ctx.setPostId(post.getId());
+            runner.runFetchFlow(ctx);
+            return ctx.getFinalDto();
+        }).toList();
+        Page<PostFeedItemDto> enrichedPage = new PageImpl<>(enriched, postPage.getPageable(), postPage.getTotalElements());
+        return ResponseEntity.ok(enrichedPage);
+    }
+
+    @GetMapping("/posts")
+    public ResponseEntity<List<PostFeedItemDto>> getAllPosts() {
+        List<PostFeedItemDto> enriched = postClient.getAllPosts().stream().map(post -> {
+            PostWorkflowContext ctx = new PostWorkflowContext();
+            ctx.setPostId(post.getId());
+            runner.runFetchFlow(ctx);
+            return ctx.getFinalDto();
+        }).toList();
+        return ResponseEntity.ok(enriched);
+    }
+
+    @GetMapping("/posts/followed/{username}")
+    public ResponseEntity<List<PostFeedItemDto>> getFollowedPosts(@PathVariable String username) {
+        List<PostFeedItemDto> enriched = postClient.getFollowedPosts(username).stream().map(post -> {
+            PostWorkflowContext ctx = new PostWorkflowContext();
+            ctx.setPostId(post.getId());
+            runner.runFetchFlow(ctx);
+            return ctx.getFinalDto();
+        }).toList();
+        return ResponseEntity.ok(enriched);
+    }
+
+    @GetMapping("/posts/reported")
+    public ResponseEntity<List<PostFeedItemDto>> getReportedPosts() {
+        List<PostFeedItemDto> enriched = postClient.getReportedPosts().stream().map(post -> {
+            PostWorkflowContext ctx = new PostWorkflowContext();
+            ctx.setPostId(post.getId());
+            runner.runFetchFlow(ctx);
+            return ctx.getFinalDto();
+        }).toList();
+        return ResponseEntity.ok(enriched);
+    }
+
+    @GetMapping("/posts/stats")
+    public ResponseEntity<StatsResponseDto> getStats() {
+        return ResponseEntity.ok(postClient.getPostStats());
+    }
 
     @GetMapping("/post-feed/{postId}")
     public ResponseEntity<PostFeedItemDto> getFeed(@PathVariable Integer postId) {
@@ -94,6 +171,5 @@ public class PostOrchestrationController {
 
         return ResponseEntity.noContent().build();
     }
-
 
 }
