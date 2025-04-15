@@ -15,5 +15,9 @@ public interface LikeClient {
 
     @DeleteMapping("/like")
     void unlikePost(@RequestBody LikeRequestDto requestDto);
+
+    @DeleteMapping("/like/post/{postId}")
+    void deleteAllByPostId(@PathVariable Integer postId);
+
 }
 

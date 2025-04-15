@@ -28,4 +28,11 @@ public class LikeController {
     public ResponseEntity<Integer> getLikeCount(@PathVariable Integer postId) {
         return ResponseEntity.ok(likeService.getLikeCountByPostId(postId));
     }
+
+    @DeleteMapping("/post/{postId}")
+    public ResponseEntity<Void> deleteAllByPostId(@PathVariable Integer postId) {
+        likeService.deleteAllByPostId(postId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

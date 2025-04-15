@@ -30,4 +30,9 @@ public class LikeService {
         Optional<Like> like = likeRepository.findByUsernameAndPostId(likeRequestDto.getUsername(), likeRequestDto.getPostId());
         like.ifPresent(likeRepository::delete);
     }
+
+    public void deleteAllByPostId(Integer postId) {
+        likeRepository.deleteAllByPostId(postId);
+    }
+
 }

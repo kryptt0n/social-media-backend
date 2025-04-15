@@ -30,4 +30,11 @@ public class CommentController {
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/post/{postId}")
+    public ResponseEntity<Void> deleteAllByPostId(@PathVariable Integer postId) {
+        commentService.deleteAllByPostId(postId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

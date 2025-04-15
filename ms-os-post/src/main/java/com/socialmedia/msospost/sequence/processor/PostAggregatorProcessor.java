@@ -24,6 +24,7 @@ public class PostAggregatorProcessor implements SequenceProcessor {
         feedItem.setImageUrl(post.getImageUrl());
         feedItem.setCreatedAt(post.getCreatedAt());
         feedItem.setLikeCount(context.getLikeCount());
+        feedItem.setComments(context.getComments());
 
         context.setFinalDto(feedItem);
 

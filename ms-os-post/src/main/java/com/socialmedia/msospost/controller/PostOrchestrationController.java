@@ -5,6 +5,8 @@ import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.PostWorkflowRunner;
 import com.socialmedia.msospost.sequence.processor.LikePostProcessor;
 import com.socialmedia.msospost.sequence.processor.UnlikePostProcessor;
+import com.socialmedia.msospost.sequence.processor.DeletePostProcessor;
+import com.socialmedia.msospost.service.CommentOrchestratorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ public class PostOrchestrationController {
     private final PostWorkflowRunner runner;
     private final LikePostProcessor likePostProcessor;
     private final UnlikePostProcessor unlikePostProcessor;
+    private final CommentOrchestratorService commentOrchestratorService;
+    private final DeletePostProcessor deletePostProcessor;
 
     @GetMapping("/post-feed/{postId}")
     public ResponseEntity<PostFeedItemDto> getFeed(@PathVariable Integer postId) {
@@ -74,4 +78,22 @@ public class PostOrchestrationController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/comment")
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto requestDto) {
+        System.out.println("📝 Creating comment: " + requestDto);
+        return ResponseEntity.ok(commentOrchestratorService.createComment(requestDto));
+    }
+
+    @DeleteMapping("/post/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Integer postId) {
+        PostWorkflowContext context = new PostWorkflowContext();
+        context.setPostId(postId);
+
+        deletePostProcessor.process(context);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
