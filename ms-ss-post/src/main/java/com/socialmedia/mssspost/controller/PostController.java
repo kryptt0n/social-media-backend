@@ -44,6 +44,12 @@ public class PostController {
         return posts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(posts);
     }
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponseDto> getById(@PathVariable Integer postId) {
+        return ResponseEntity.ok(postService.getPostById(postId));
+    }
+
+
     // Get all posts
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> getAllPosts() {

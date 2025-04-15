@@ -9,11 +9,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostResponseDto {
+public class CommentResponseDto {
     private Integer id;
-    private String username;
     private String content;
-    private String imageUrl;
-    private Boolean reported;
+    private String username;
+    private Integer postId;
     private LocalDateTime createdAt;
 }
