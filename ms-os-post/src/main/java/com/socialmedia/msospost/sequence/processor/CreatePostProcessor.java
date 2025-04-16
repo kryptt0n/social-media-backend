@@ -48,12 +48,16 @@ public class CreatePostProcessor implements SequenceProcessor {
 //            mediaProducer.sendMediaPayload(payload);
 //        }
         if (context.getBase64Image() != null && !context.getBase64Image().isBlank()) {
+            System.out.println("🖼️ Image exists!!!");
             MediaPayload payload = new MediaPayload();
             payload.setSourceId(String.valueOf(createdPost.getId()));
             payload.setBase64Image(context.getBase64Image());
             payload.setProvider("POST");
 
-            mediaClient.upload(payload); // 🔁 now using REST instead of Kafka
+//            mediaClient.upload(payload); // 🔁 now using REST instead of Kafka
+            System.out.println("➡️ Trying to forward payload to kafka");
+            mediaProducer.send(payload);
+
         } else {
             System.out.println("⚠️ No image found in base64Image – skipping ms-ss-media-exchangecall");
         }

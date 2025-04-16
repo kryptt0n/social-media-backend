@@ -15,7 +15,7 @@ public class MediaProducer {
     @Value("${kafka.topic.media}")
     private String topic;
 
-    public void sendMediaPayload(MediaPayload payload) {
+    public void send(MediaPayload payload) {
         kafkaTemplate.send(topic, payload.getSourceId(), payload);
         System.out.println("📤 Sent media payload to Kafka: " + payload);
     }
