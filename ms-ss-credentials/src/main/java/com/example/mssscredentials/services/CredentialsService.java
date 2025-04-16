@@ -85,4 +85,9 @@ public class CredentialsService {
 
         resetPasswordTokenRepository.delete(resetPasswordToken);
     }
+
+    public boolean existsByUsername(String username) {
+        return credentialRepository.findByUsername(username).isPresent();
+    }
+
 }
