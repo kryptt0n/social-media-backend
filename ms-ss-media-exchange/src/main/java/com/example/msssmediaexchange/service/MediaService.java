@@ -10,11 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.util.Base64;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -92,8 +97,29 @@ public class MediaService {
         return "media/" + provider + "/" + mediaId + "/" + UUID.randomUUID();
     }
 
-    public Optional<Media> findBySourceIdAndProvider(String sourceId, Provider provider){
-//        s3Client.getObject();
-        return mediaRepository.findBySourceIdAndProvider(sourceId, provider);
+    public String findBySourceIdAndProvider(String sourceId, Provider provider){
+
+        Optional<Media> mediaOpt = mediaRepository.findBySourceIdAndProvider(sourceId, provider);
+        if (mediaOpt.isEmpty()) {
+            throw new NoSuchElementException("Media not found for sourceId: " + sourceId + " and provider: " + provider);
+        }
+
+        String s3Key = mediaOpt.get().getS3Key();
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket) // Replace with your bucket name
+                .key(s3Key)
+                .build();
+
+        s3Client.getObject(getObjectRequest);
+
+        try {
+            ResponseBytes<GetObjectResponse> responseBytes = s3Client.getObjectAsBytes(getObjectRequest);
+            byte[] data = responseBytes.asByteArray();
+            return Base64.getEncoder().encodeToString(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

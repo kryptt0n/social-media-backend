@@ -39,7 +39,7 @@ public class MediaController {
      * Example: GET /media/123/POST
      */
     @GetMapping("/{sourceId}/{provider}")
-    public Optional<Media> findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider) {
+    public String findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider) {
         return mediaService.findBySourceIdAndProvider(sourceId, provider);
     }
 
