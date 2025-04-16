@@ -8,7 +8,6 @@ import lombok.Data;
 public class PostRequestDto {
     @NotBlank(message = "Content must not be empty")
     private String content;
-    private String imageUrl;
 
     @NotNull(message = "User ID is required")
     private Integer userId;

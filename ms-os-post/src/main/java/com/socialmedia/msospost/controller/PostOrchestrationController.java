@@ -116,23 +116,21 @@ public class PostOrchestrationController {
         System.out.println("▶ [CreatePostController] Starting with username: " + requestDto.getUsername());
 
         PostWorkflowContext context = new PostWorkflowContext();
-
         context.setUsername(requestDto.getUsername());
 
-        // Prepopulate partial post object to pass to the context
+        // ✅ Add base64Image to context for Kafka processing
+        context.setBase64Image(requestDto.getBase64Image());
+
         PostResponseDto post = new PostResponseDto();
         post.setContent(requestDto.getContent());
-        post.setImageUrl(requestDto.getImageUrl());
-
         context.setPost(post);
 
-        runner.runCreateFlow(context); // Will use CreatePostProcessor (and optionally FetchPostById)
-
-        // ✅ Debug: Confirm the postId is now set
+        runner.runCreateFlow(context);
         System.out.println("✅ [CreatePostController] Post created with ID: " + context.getPost().getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(context.getPost());
     }
+
 
     @PostMapping("/like")
     public ResponseEntity<Void> likePost(@RequestBody LikeRequestDto requestDto) {

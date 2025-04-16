@@ -49,7 +49,6 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
-
     // Get all posts
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> getAllPosts() {

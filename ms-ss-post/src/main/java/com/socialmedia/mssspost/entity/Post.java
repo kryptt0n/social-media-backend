@@ -25,7 +25,6 @@ public class Post {
     private String username;
 
     private String content;
-    private String imageUrl;
 
     @Builder.Default
     private Boolean reported = false;

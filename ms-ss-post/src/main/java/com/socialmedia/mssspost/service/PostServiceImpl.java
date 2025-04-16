@@ -30,7 +30,6 @@ public class PostServiceImpl implements PostService {
     public PostResponseDto createPost(CreatePostRequestDto request) {
         Post post = Post.builder()
                 .content(request.getContent())
-                .imageUrl(request.getImageUrl())
                 .username(request.getUsername())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -117,7 +116,6 @@ public class PostServiceImpl implements PostService {
         return PostResponseDto.builder()
                 .id(post.getId())
                 .content(post.getContent())
-                .imageUrl(post.getImageUrl())
                 .username(post.getUsername())
                 .createdAt(post.getCreatedAt())
                 .build();

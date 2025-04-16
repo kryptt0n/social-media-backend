@@ -6,7 +6,6 @@ import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.SequenceProcessor;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class PostAggregatorProcessor implements SequenceProcessor {
 
@@ -17,17 +16,20 @@ public class PostAggregatorProcessor implements SequenceProcessor {
             throw new IllegalStateException("Post must be fetched before aggregation");
         }
 
-        PostFeedItemDto feedItem = new PostFeedItemDto();
-        feedItem.setPostId(post.getId());
-        feedItem.setUsername(post.getUsername());
-        feedItem.setContent(post.getContent());
-        feedItem.setImageUrl(post.getImageUrl());
-        feedItem.setCreatedAt(post.getCreatedAt());
-        feedItem.setLikeCount(context.getLikeCount());
-        feedItem.setComments(context.getComments());
+        PostFeedItemDto feedItemDto = PostFeedItemDto.builder()
+                .postId(post.getId())
+                .username(post.getUsername())
+                .content(post.getContent())
+                .createdAt(post.getCreatedAt())
+                .likeCount(context.getLikeCount())
+                .likedByCurrentUser(context.getLikedByCurrentUser())
+                .comments(context.getComments())
+                .avatarUrl(context.getUserProfile() != null ? context.getUserProfile().getAvatarUrl() : null)
+                // ✅ imageUrl will be set later in MediaEnrichmentProcessor
+                .build();
 
-        context.setFinalDto(feedItem);
+        context.setFinalDto(feedItemDto);
 
-        System.out.println("🧩 Aggregated post into PostFeedItemDto: " + feedItem);
+        System.out.println("🧩 Aggregated post into PostFeedItemDto: " + feedItemDto);
     }
 }

@@ -1,9 +1,6 @@
 package com.socialmedia.msospost.sequence;
 
-import com.socialmedia.msospost.sequence.processor.CommentEnrichmentProcessor;
-import com.socialmedia.msospost.sequence.processor.CreatePostProcessor;
-import com.socialmedia.msospost.sequence.processor.PostAggregatorProcessor;
-import com.socialmedia.msospost.sequence.processor.LikeEnrichmentProcessor;
+import com.socialmedia.msospost.sequence.processor.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +13,7 @@ public class PostWorkflowRunner {
     private final PostAggregatorProcessor postAggregatorProcessor;
     private final LikeEnrichmentProcessor likeEnrichmentProcessor;
     private final CommentEnrichmentProcessor commentEnrichmentProcessor;
+    private final MediaEnrichmentProcessor mediaEnrichmentProcessor;
 
     public void runCreateFlow(PostWorkflowContext context) {
         System.out.println("▶️ Running Post Creation Workflow");
@@ -32,5 +30,6 @@ public class PostWorkflowRunner {
         likeEnrichmentProcessor.process(context);
         commentEnrichmentProcessor.process(context);
         postAggregatorProcessor.process(context);
+        mediaEnrichmentProcessor.process(context);
     }
 }

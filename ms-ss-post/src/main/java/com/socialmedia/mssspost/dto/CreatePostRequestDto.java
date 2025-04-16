@@ -11,6 +11,4 @@ public class CreatePostRequestDto {
 
     @NotBlank(message = "Content must not be empty")
     private String content;
-
-    private String imageUrl;
 }

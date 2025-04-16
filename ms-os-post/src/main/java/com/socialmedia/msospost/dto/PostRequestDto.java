@@ -7,5 +7,4 @@ public class PostRequestDto {
     private Integer userId;
     private String username;
     private String content;
-    private String imageUrl;
 }

@@ -26,6 +26,7 @@ public class PostWorkflowContext {
     private Boolean likedByCurrentUser;
     private List<CommentResponseDto> comments;
     private UserProfileDto userProfile;
+    private String base64Image;
 
     // Final Aggregation
     private PostFeedItemDto finalDto;
