@@ -42,14 +42,18 @@ public class FollowController {
         return ResponseEntity.ok(followService.getFollowed(userId));
     }
 
-    @GetMapping("/follow-data")
-    public ResponseEntity<FollowResponseDto> getData(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
+    @GetMapping("/follow-data/{userId}")
+    public ResponseEntity<FollowResponseDto> getData(@PathVariable Integer userId) {
         FollowResponseDto responseDto = new FollowResponseDto();
-        responseDto.setFollowed(followService.isFollowed(userId, currentUserId));
         responseDto.setFollowedCount(followService.countFollowed(userId));
         responseDto.setFollowerCount(followService.countFollowers(userId));
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/is-followed")
+    public ResponseEntity<Boolean> getIsFollowed(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
+        return ResponseEntity.ok(followService.isFollowed(userId, currentUserId));
     }
 }
 

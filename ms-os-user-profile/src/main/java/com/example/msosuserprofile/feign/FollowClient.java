@@ -22,6 +22,9 @@ public interface FollowClient {
     @DeleteMapping("/follow")
     Void unfollow(@RequestParam Integer followerId, @RequestParam Integer followedId);
 
-    @GetMapping("/follow-data")
-    FollowResponseDto getFollowData(@RequestParam Integer followerId, @RequestParam Integer followedId);
+    @GetMapping("/follow/follow-data/{userId}")
+    FollowResponseDto getFollowData(@PathVariable Integer userId);
+
+    @GetMapping("/follow/is-followed")
+    ResponseEntity<Boolean> getIsFollowed(@RequestParam Integer userId, @RequestParam Integer currentUserId);
 }

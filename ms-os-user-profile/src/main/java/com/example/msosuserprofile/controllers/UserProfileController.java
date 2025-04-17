@@ -7,6 +7,7 @@ import com.example.msosuserprofile.feign.MediaClient;
 import com.example.msosuserprofile.feign.UserCrudClient;
 import com.example.msosuserprofile.kafka.MediaProducer;
 import feign.FeignException;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,14 +59,15 @@ public class UserProfileController {
             Integer userId = credentials.getUserId();
             UserProfileDTO userProfileDto = userCrudClient.getUser(userId);
             Optional<MediaResponseDto> mediaDto = mediaClient.findBySourceIdAndProvider(userProfileDto.id().toString(), "PROFILE");
+            FollowResponseDto followResponseDto = followClient.getFollowData(userId);
 
             UserDataResponseDto userDataResponseDto = new UserDataResponseDto();
             userDataResponseDto.setUsername(credentials.getUsername());
             mediaDto.ifPresent(mediaResponseDto -> userDataResponseDto.setImageUrl("https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + mediaResponseDto.getS3Key()));
             userDataResponseDto.setBio(userProfileDto.bio());
             userDataResponseDto.setActive(userProfileDto.isActive());
-
-
+            userDataResponseDto.setFollowerCount(followResponseDto.getFollowerCount());
+            userDataResponseDto.setFollowingCount(followResponseDto.getFollowedCount());
 
             return ResponseEntity.ok(userDataResponseDto);
         } catch (FeignException.NotFound ex) {
@@ -76,6 +78,22 @@ public class UserProfileController {
         }
     }
 
+    @GetMapping("/is-followed")
+    public ResponseEntity<Boolean> getRelationship(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
+        return followClient.getIsFollowed(userId, currentUserId);
+    }
+
+    @PostMapping("/follow")
+    public ResponseEntity<Void> follow(@RequestBody FollowRequestDto followRequestDto) {
+        followClient.follow(followRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/follow")
+    public ResponseEntity<Void> unfollow(@RequestParam Integer followerId, @RequestParam Integer followedId){
+        followClient.unfollow(followerId, followedId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     @PostMapping("/deactivate/{username}")
     public ResponseEntity<String> deactivate(@PathVariable String username) {
