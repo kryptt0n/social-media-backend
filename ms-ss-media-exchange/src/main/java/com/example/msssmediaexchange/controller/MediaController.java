@@ -1,12 +1,12 @@
 package com.example.msssmediaexchange.controller;
 
+import com.example.msssmediaexchange.entity.Media;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.msssmediaexchange.dto.Provider;
-import com.example.msssmediaexchange.entity.Media;
 import com.example.msssmediaexchange.service.MediaService;
 import lombok.RequiredArgsConstructor;
 

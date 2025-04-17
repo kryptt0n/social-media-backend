@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/orchestration")
+@RequestMapping("/posts")
 public class PostOrchestrationController {
 
     private final PostWorkflowRunner runner;
@@ -30,7 +30,7 @@ public class PostOrchestrationController {
     private final DeletePostProcessor deletePostProcessor;
     private final PostClient postClient;
 
-    @GetMapping("/posts/search")
+    @GetMapping("/search")
     public ResponseEntity<Page<PostFeedItemDto>> searchPosts(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
@@ -47,7 +47,7 @@ public class PostOrchestrationController {
         Page<PostFeedItemDto> enrichedPage = new PageImpl<>(enriched, postPage.getPageable(), postPage.getTotalElements());
         return ResponseEntity.ok(enrichedPage);    }
 
-    @GetMapping("/posts/user/{username}")
+    @GetMapping("/user/{username}")
     public ResponseEntity<Page<PostFeedItemDto>> getPostsByUser(@PathVariable String username,
                                                                 @RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "10") int size) {
@@ -62,7 +62,7 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(enrichedPage);
     }
 
-    @GetMapping("/posts")
+    @GetMapping("/all")
     public ResponseEntity<List<PostFeedItemDto>> getAllPosts() {
         List<PostFeedItemDto> enriched = postClient.getAllPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
@@ -73,7 +73,7 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(enriched);
     }
 
-    @GetMapping("/posts/followed/{username}")
+    @GetMapping("/followed/{username}")
     public ResponseEntity<List<PostFeedItemDto>> getFollowedPosts(@PathVariable String username) {
         List<PostFeedItemDto> enriched = postClient.getFollowedPosts(username).stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
@@ -84,7 +84,7 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(enriched);
     }
 
-    @GetMapping("/posts/reported")
+    @GetMapping("/reported")
     public ResponseEntity<List<PostFeedItemDto>> getReportedPosts() {
         List<PostFeedItemDto> enriched = postClient.getReportedPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
@@ -95,12 +95,12 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(enriched);
     }
 
-    @GetMapping("/posts/stats")
+    @GetMapping("/stats")
     public ResponseEntity<StatsResponseDto> getStats() {
         return ResponseEntity.ok(postClient.getPostStats());
     }
 
-    @GetMapping("/post-feed/{postId}")
+    @GetMapping("/feed/{postId}")
     public ResponseEntity<PostFeedItemDto> getFeed(@PathVariable Integer postId) {
         PostWorkflowContext context = new PostWorkflowContext();
         context.setPostId(postId);
@@ -111,7 +111,7 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(context.getFinalDto());
     }
 
-    @PostMapping("/post-create")
+    @PostMapping("/create")
     public ResponseEntity<PostResponseDto> createPost(@RequestBody CreatePostRequestDto requestDto) {
         System.out.println("▶ [CreatePostController] Starting with username: " + requestDto.getUsername());
 
@@ -160,7 +160,7 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(commentOrchestratorService.createComment(requestDto));
     }
 
-    @DeleteMapping("/post/{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Integer postId) {
         PostWorkflowContext context = new PostWorkflowContext();
         context.setPostId(postId);

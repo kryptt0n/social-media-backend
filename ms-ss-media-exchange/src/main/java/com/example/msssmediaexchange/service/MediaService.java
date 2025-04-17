@@ -8,11 +8,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.util.Base64;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,7 +31,6 @@ public class MediaService {
     private String bucket;
 
     @KafkaListener(topics = "${kafka.topic.media}", groupId = "${spring.kafka.consumer.group-id}")
-
     public void processMedia(MediaPayload payload) {
         if (payload.getBase64Image() == null || payload.getBase64Image().isEmpty()) {
             return;
@@ -54,7 +57,7 @@ public class MediaService {
         return "media/" + provider + "/" + mediaId + "/" + UUID.randomUUID();
     }
 
-    public Optional<Media> findBySourceIdAndProvider(String sourceId, Provider provider){
+    public Optional<Media> findBySourceIdAndProvider(String sourceId, Provider provider) {
         return mediaRepository.findBySourceIdAndProvider(sourceId, provider);
     }
 }
