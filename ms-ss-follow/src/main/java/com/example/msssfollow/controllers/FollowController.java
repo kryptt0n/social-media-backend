@@ -1,6 +1,9 @@
 package com.example.msssfollow.controllers;
 
 
+import com.example.msssfollow.dto.FollowRequestDto;
+import com.example.msssfollow.dto.FollowResponseDto;
+import com.example.msssfollow.entities.Follow;
 import com.example.msssfollow.services.FollowService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +21,14 @@ public class FollowController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> follow(@RequestParam Integer followerId, @RequestParam Integer followedId) {
-        followService.follow(followerId, followedId);
+    public ResponseEntity<Void> follow(@RequestBody FollowRequestDto requestDto) {
+        followService.follow(requestDto);
         return ResponseEntity.status(201).build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> unfollow(@RequestParam Integer followerId, @RequestParam Integer followedId) {
-        followService.unfollow(followerId, followedId);
+    public ResponseEntity<Void> unfollow(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
+        followService.unfollow(userId, currentUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -37,6 +40,16 @@ public class FollowController {
     @GetMapping("/followed/{userId}")
     public ResponseEntity<List<Integer>> getFollowed(@PathVariable Integer userId) {
         return ResponseEntity.ok(followService.getFollowed(userId));
+    }
+
+    @GetMapping("/follow-data")
+    public ResponseEntity<FollowResponseDto> getData(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
+        FollowResponseDto responseDto = new FollowResponseDto();
+        responseDto.setFollowed(followService.isFollowed(userId, currentUserId));
+        responseDto.setFollowedCount(followService.countFollowed(userId));
+        responseDto.setFollowerCount(followService.countFollowers(userId));
+
+        return ResponseEntity.ok(responseDto);
     }
 }
 

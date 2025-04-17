@@ -21,9 +21,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/usercrud")
 public class UserCrudController {
-    private static final Logger log =  LoggerFactory.getLogger(UserCrudController.class);
+    private static final Logger log = LoggerFactory.getLogger(UserCrudController.class);
 
     private final UserCrudService userService;
+
     public UserCrudController(UserCrudService userService) {
         this.userService = userService;
     }
@@ -49,10 +50,10 @@ public class UserCrudController {
 
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserProfileDTO> getUser(@PathVariable Integer userId, @RequestParam String currentUsername) {
+    public ResponseEntity<UserProfileDTO> getUser(@PathVariable Integer userId) {
         log.info("Fetching user by username: {}", userId);
 
-        return userService.getUserByUserId(userId, currentUsername)
+        return userService.getUserByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> {
                     log.warn("User not found: {}", userId);
