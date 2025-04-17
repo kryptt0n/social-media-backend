@@ -17,13 +17,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true)
-    private String username;
-    private String password;
-
-    @Column(name = "image_url")
-    private String imageUrl;
-
     private String bio;
 
     @Column(name = "created_at")

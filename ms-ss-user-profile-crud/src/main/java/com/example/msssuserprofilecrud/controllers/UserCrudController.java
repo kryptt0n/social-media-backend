@@ -1,22 +1,18 @@
 package com.example.msssuserprofilecrud.controllers;
 
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
-import com.example.msssuserprofilecrud.dto.UserDTO;
+import com.example.msssuserprofilecrud.dto.UserProfileDTO;
+import com.example.msssuserprofilecrud.dto.UserEmailDTO;
+import com.example.msssuserprofilecrud.dto.UserRegisterDTO;
 import com.example.msssuserprofilecrud.entities.User;
 import com.example.msssuserprofilecrud.services.UserCrudService;
-import com.example.msssuserprofilecrud.repositories.UserRepository;
 
-import com.example.msssuserprofilecrud.services.storage.FileSystemStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 
 @ConfigurationPropertiesScan("com.example.msssuserprofilecrud.configs")
 
@@ -26,84 +22,81 @@ public class UserCrudController {
     private static final Logger log =  LoggerFactory.getLogger(UserCrudController.class);
 
     private final UserCrudService userService;
-    private final FileSystemStorageService storageService;
-    public UserCrudController(UserCrudService userService, FileSystemStorageService storageService) {
+    public UserCrudController(UserCrudService userService) {
         this.userService = userService;
-        this.storageService = storageService;
     }
 
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> register(
-            @RequestBody UserDTO userDto,
-            @RequestParam String password) {
-        log.info("Received registration request for user: {}", userDto.username());
+    public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO userDto) {
+//        log.info("Received registration request for user: {}", userDto.username());
 
         User user = new User();
-        user.setUsername(userDto.username());
-        user.setBio(userDto.bio());
-        user.setImageUrl(userDto.imageUrl());
-        user.setPassword(password);
-        user.setAccountNonLocked(userDto.isActive());
-        user.setPublic(userDto.isPublic());
+        user.setBio(userDto.getBio());
+        user.setAccountNonLocked(true);
+        user.setPublic(user.isPublic());
+        user.setEmail(userDto.getEmail());
 
-        userService.registerUser(user);
-        log.info("User saved successfully: {}", user.getUsername());
+        User savedUser = userService.registerUser(user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+        UserProfileDTO result = new UserProfileDTO(savedUser.getId(), savedUser.getBio(), savedUser.getEmail(), savedUser.isAccountNonLocked(), savedUser.isPublic());
+//        log.info("User saved successfully: {}", user.getUsername());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
 
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UserProfileDTO> getUser(@PathVariable Integer userId, @RequestParam String currentUsername) {
+        log.info("Fetching user by username: {}", userId);
 
-
-
-    @GetMapping("/users/{username}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable String username, @RequestParam String currentUsername) {
-        log.info("Fetching user by username: {}", username);
-
-        return userService.getUserByUsername(username, currentUsername)
+        return userService.getUserByUserId(userId, currentUsername)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> {
-                    log.warn("User not found: {}", username);
+                    log.warn("User not found: {}", userId);
                     return ResponseEntity.notFound().build();
                 });
     }
 
-    @PostMapping("/deactivate/{username}")
-    public ResponseEntity<Void> deactivateUser(@PathVariable String username) {
-        userService.deactivateUser(username);
+    @GetMapping("/emails/{email}")
+    public ResponseEntity<UserEmailDTO> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
+    @PostMapping("/deactivate/{userId}")
+    public ResponseEntity<Void> deactivateUser(@PathVariable Integer userId) {
+        userService.deactivateUser(userId);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/update/{username}")
-    public ResponseEntity<String> updateUser(@RequestBody UpdateUserDTO dto, @PathVariable String username) {
-        return userService.getIdByUsername(username)
-                .flatMap(id -> userService.updateUser(dto, id))
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<String> updateUser(@RequestBody UpdateUserDTO dto, @PathVariable Integer userId) {
+        return userService.updateUser(dto, userId)
                 .map(user -> ResponseEntity.ok("User updated"))
                 .orElse(ResponseEntity.internalServerError().body("Update failed"));
     }
 
-    @PostMapping("/recover/{username}")
-    public ResponseEntity<Void> recoverUser(@PathVariable String username) {
-        userService.recoverUser(username);
+    @PostMapping("/recover/{userId}")
+    public ResponseEntity<Void> recoverUser(@PathVariable Integer userId) {
+        userService.recoverUser(userId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/set-public/{username}")
-    public ResponseEntity<Void> setPublic(@PathVariable String username) {
-        userService.setPublic(username);
+    @PostMapping("/set-public/{userId}")
+    public ResponseEntity<Void> setPublic(@PathVariable Integer userId) {
+        userService.setPublic(userId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/set-private/{username}")
-    public ResponseEntity<Void> setPrivate(@PathVariable String username) {
-        userService.setPrivate(username);
+    @PostMapping("/set-private/{userId}")
+    public ResponseEntity<Void> setPrivate(@PathVariable Integer userId) {
+        userService.setPrivate(userId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/delete/{username}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
-        userService.deleteUser(username);
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+        userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
 }

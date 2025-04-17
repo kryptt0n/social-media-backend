@@ -1,11 +1,10 @@
 package com.example.msssuserprofilecrud.services;
 
 
-import com.example.msssuserprofilecrud.dto.CredentialsDto;
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
-import com.example.msssuserprofilecrud.dto.UserDTO;
+import com.example.msssuserprofilecrud.dto.UserProfileDTO;
+import com.example.msssuserprofilecrud.dto.UserEmailDTO;
 import com.example.msssuserprofilecrud.entities.User;
-import com.example.msssuserprofilecrud.feign.IdentityClient;
 import com.example.msssuserprofilecrud.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -17,85 +16,75 @@ import java.util.Optional;
 public class UserCrudService {
 
     private final UserRepository userRepository;
-    private final IdentityClient identityClient;
 
 
-    public UserCrudService(UserRepository userRepository, IdentityClient identityClient) {
+    public UserCrudService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.identityClient = identityClient;
-
-
     }
 
-    public Optional<UserDTO> getUserByUsername(String usernameToFind, String currentUsername) {
-        return userRepository.findByUsername(usernameToFind).map(user ->
-                new UserDTO(
-                        user.getUsername(),
-                        user.getImageUrl(),
-                        user.getBio(),
-                        false,
-                        0,
-                        0,
-                        user.isAccountNonLocked(),
-                        user.isPublic()
-                )
-        );
+    public Optional<UserProfileDTO> getUserByUserId(Integer userId, String currentUsername) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            UserProfileDTO result = new UserProfileDTO(userId, user.getBio(), user.getEmail(), user.isAccountNonLocked(), user.isPublic());
+            return Optional.of(result);
+        }
+        return Optional.empty();
     }
 
-    public void registerUser(User user) {
-        // Set created timestamp
+    public User registerUser(User user) {
         user.setCreatedAt(LocalDateTime.now());
-        String rawPassword = user.getPassword();
-        // Encode password
-        user.setPassword(user.getPassword());
-
-        // Assign default role if not set
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             user.setRoles("USER");
         }
 
-        // Save to DB
-        userRepository.save(user);
-        CredentialsDto credentialsDto = new CredentialsDto(user.getUsername(), rawPassword);
-        identityClient.register(credentialsDto);
+        return userRepository.save(user);
     }
 
     @Transactional
-    public void deactivateUser(String username) {
-        userRepository.deactivateUser(username);
+    public void deactivateUser(Integer id) {
+        userRepository.deactivateUser(id);
     }
 
     @Transactional
-    public void recoverUser(String username) {
-        userRepository.recoverUser(username);
+    public void recoverUser(Integer id) {
+        userRepository.recoverUser(id);
     }
 
     @Transactional
-    public void setPublic(String username) {
-        userRepository.setPublic(username);
+    public void setPublic(Integer id) {
+        userRepository.setPublic(id);
     }
 
     @Transactional
-    public void setPrivate(String username) {
-        userRepository.setPrivate(username);
+    public void setPrivate(Integer id) {
+        userRepository.setPrivate(id);
     }
 
     @Transactional
-    public void deleteUser(String username) {
-        userRepository.deleteByUsername(username);
+    public void deleteUser(Integer id) {
+        userRepository.deleteById(id);
     }
 
     public Optional<User> updateUser(UpdateUserDTO updateUserDTO, Integer id) {
         return userRepository.findById(id).map(user -> {
-            if (updateUserDTO.getImageUrl() != null)
-                user.setImageUrl(updateUserDTO.getImageUrl());
             if (updateUserDTO.getBio() != null)
                 user.setBio(updateUserDTO.getBio());
             return userRepository.save(user);
         });
     }
 
-    public Optional<Integer> getIdByUsername(String username) {
-        return userRepository.getIdByUsername(username);
+    public UserEmailDTO getUserByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        UserEmailDTO result;
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            result = new UserEmailDTO(true, user.getEmail(), user.getId());
+        } else {
+            result = new UserEmailDTO(false, null, 0);
+        }
+
+        return result;
     }
 }
