@@ -1,39 +1,37 @@
 package com.example.msosuserprofile.controllers;
 
-import com.example.msosuserprofile.dto.UpdateUserDTO;
-import com.example.msosuserprofile.dto.UserDTO;
+import com.example.msosuserprofile.dto.*;
+import com.example.msosuserprofile.feign.CredentialClient;
 import com.example.msosuserprofile.feign.UserCrudClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Map;
 
 @RestController
+@RequestMapping("users")
 public class UserProfileController {
     private static final Logger log =  LoggerFactory.getLogger(UserProfileController.class);
 
     private final UserCrudClient userCrudClient;
+    private final CredentialClient credentialClient;
 
-    public UserProfileController(UserCrudClient userCrudClient) {
+    public UserProfileController(UserCrudClient userCrudClient, CredentialClient credentialClient) {
         this.userCrudClient = userCrudClient;
+        this.credentialClient = credentialClient;
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<UserDTO> register(
-            @RequestPart("user") UserDTO user,
-            @RequestPart("password") String password) {
+    public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO user) {
+        UserProfileRegisterDTO registerDTO = new UserProfileRegisterDTO(user.getEmail(), user.getBio(), user.getIsPublic());
+        ResponseEntity<UserProfileDTO> userProfileResponse = userCrudClient.register(registerDTO);
+        UserProfileDTO userProfileDTO = userProfileResponse.getBody();
+        log.info("UserProfileDTO with id: {}", userProfileDTO.id());
+        credentialClient.register(new CredentialsDto(user.getUsername(), user.getPassword(), userProfileDTO.id()));
 
-        return userCrudClient.register(user, password); // ✅ forward as JSON + param
+        return ResponseEntity.status(HttpStatus.CREATED).body(userProfileDTO);
     }
 
     @GetMapping("/users/{username}")

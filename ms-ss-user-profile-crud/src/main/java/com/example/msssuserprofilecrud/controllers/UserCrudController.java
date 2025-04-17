@@ -3,7 +3,7 @@ package com.example.msssuserprofilecrud.controllers;
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
 import com.example.msssuserprofilecrud.dto.UserProfileDTO;
 import com.example.msssuserprofilecrud.dto.UserEmailDTO;
-import com.example.msssuserprofilecrud.dto.UserRegisterDTO;
+import com.example.msssuserprofilecrud.dto.UserProfileRegisterDTO;
 import com.example.msssuserprofilecrud.entities.User;
 import com.example.msssuserprofilecrud.services.UserCrudService;
 
@@ -28,7 +28,7 @@ public class UserCrudController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO userDto) {
+    public ResponseEntity<UserProfileDTO> register(@RequestBody UserProfileRegisterDTO userDto) {
 //        log.info("Received registration request for user: {}", userDto.username());
 
         User user = new User();
@@ -40,7 +40,7 @@ public class UserCrudController {
         User savedUser = userService.registerUser(user);
 
         UserProfileDTO result = new UserProfileDTO(savedUser.getId(), savedUser.getBio(), savedUser.getEmail(), savedUser.isAccountNonLocked(), savedUser.isPublic());
-//        log.info("User saved successfully: {}", user.getUsername());
+        log.info("User saved successfully: {}", result.id());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

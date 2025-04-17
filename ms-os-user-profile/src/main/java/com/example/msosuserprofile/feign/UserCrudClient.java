@@ -1,7 +1,6 @@
 package com.example.msosuserprofile.feign;
 
-import com.example.msosuserprofile.dto.UpdateUserDTO;
-import com.example.msosuserprofile.dto.UserDTO;
+import com.example.msosuserprofile.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface UserCrudClient {
 
     @PostMapping("/usercrud/register")
-    ResponseEntity<UserDTO> register(@RequestBody UserDTO user, @RequestParam("password") String password);
+    ResponseEntity<UserProfileDTO> register(@RequestBody UserProfileRegisterDTO user);
 
     @GetMapping("/usercrud/users/{username}")
     UserDTO getUserByUsername(@PathVariable String username, @RequestParam String currentUsername);

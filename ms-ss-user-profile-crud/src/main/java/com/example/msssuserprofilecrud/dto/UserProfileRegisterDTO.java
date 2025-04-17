@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRegisterDTO {
+public class UserProfileRegisterDTO {
     private String email;
     private String bio;
     private Boolean isPublic;

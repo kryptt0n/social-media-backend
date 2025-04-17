@@ -1,4 +1,4 @@
-package com.example.msosidentity.dto;
+package com.example.msosuserprofile.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CredentialsDto {
+public class UserRegisterDTO {
     private String username;
     private String password;
-    private Integer userId;
+    private String email;
+    private String bio;
+    private Boolean isPublic;
 }
