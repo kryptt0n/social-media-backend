@@ -42,16 +42,14 @@ public class IdentityController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordDTO forgotPasswordDTO) {
-        // call identity ms
+        credentialClient.forgotPassword(forgotPasswordDTO);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset")
     public ResponseEntity<String> resetPassword(@RequestHeader("Authorization") String authHeader,
                                                 @Valid @RequestBody ResetPasswordDTO resetPasswordDTO) {
-        String token = authHeader.replace("Bearer ", "");
-//        passwordService.resetPassword(token, resetPasswordDTO.getNewPassword());
-        // call identity ms
+        credentialClient.resetPassword(authHeader, resetPasswordDTO);
         return ResponseEntity.ok("Password reset");
     }
 }
