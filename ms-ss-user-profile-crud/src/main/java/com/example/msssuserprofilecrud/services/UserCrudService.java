@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -41,6 +42,19 @@ public class UserCrudService {
 
         return userRepository.save(user);
     }
+
+    public List<UserProfileDTO> getAllUserProfiles() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserProfileDTO(
+                        user.getId(),
+                        user.getBio(),
+                        user.getEmail(),
+                        user.isAccountNonLocked(),
+                        user.isPublic()
+                ))
+                .toList();
+    }
+
 
     @Transactional
     public void deactivateUser(Integer id) {

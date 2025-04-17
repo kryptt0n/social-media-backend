@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @ConfigurationPropertiesScan("com.example.msssuserprofilecrud.configs")
 
 @RestController
@@ -99,5 +101,15 @@ public class UserCrudController {
         userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
+        List<UserProfileDTO> users = userService.getAllUserProfiles();  // ⬅️ Call service
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(users);
+    }
+
 }
 
