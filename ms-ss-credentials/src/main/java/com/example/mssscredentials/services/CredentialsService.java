@@ -1,5 +1,6 @@
 package com.example.mssscredentials.services;
 
+import com.example.mssscredentials.dto.CredentialsByUsernameDTO;
 import com.example.mssscredentials.dto.UserEmailDTO;
 import com.example.mssscredentials.entity.Credential;
 import com.example.mssscredentials.entity.ResetPasswordToken;
@@ -91,8 +92,18 @@ public class CredentialsService {
         resetPasswordTokenRepository.delete(resetPasswordToken);
     }
 
-    public boolean existsByUsername(String username) {
-        return credentialRepository.findByUsername(username).isPresent();
+    public CredentialsByUsernameDTO getCredentialsByUsername(String username) {
+        Optional<Credential> credentialOptional = credentialRepository.findByUsername(username);
+        CredentialsByUsernameDTO credentialsByUsernameDTO = new CredentialsByUsernameDTO();
+        if (credentialOptional.isPresent()) {
+            Credential credentials = credentialOptional.get();
+            credentialsByUsernameDTO.setUsername(credentials.getUsername());
+            credentialsByUsernameDTO.setExists(true);
+            credentialsByUsernameDTO.setUserId(credentials.getUserId());
+        } else
+            credentialsByUsernameDTO.setExists(false);
+
+        return credentialsByUsernameDTO;
     }
 
 }
