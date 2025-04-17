@@ -7,6 +7,8 @@ public class UserDataResponseDto {
     private String username;
     private String imageUrl;
     private String bio;
+    private Integer followerCount;
+    private Integer followingCount;
     boolean isActive;
     boolean isPublic;
 }
