@@ -24,7 +24,7 @@ public class UserCrudService {
         this.userRepository = userRepository;
     }
 
-    public Optional<UserProfileDTO> getUserByUserId(Integer userId, String currentUsername) {
+    public Optional<UserProfileDTO> getUserByUserId(Integer userId) {
         Optional<User> userOptional = userRepository.findById(userId);
 
         if (userOptional.isPresent()) {

@@ -2,10 +2,8 @@ package com.example.msosuserprofile.feign;
 
 import com.example.msosuserprofile.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @FeignClient(name = "ms-ss-user-profile-crud")
 public interface UserCrudClient {
@@ -13,24 +11,24 @@ public interface UserCrudClient {
     @PostMapping("/usercrud/register")
     ResponseEntity<UserProfileDTO> register(@RequestBody UserProfileRegisterDTO user);
 
-    @GetMapping("/usercrud/users/{username}")
-    UserDTO getUserByUsername(@PathVariable String username, @RequestParam String currentUsername);
+    @GetMapping("/usercrud/users/{userId}")
+    UserProfileDTO getUser(@PathVariable Integer userId);
 
-    @PostMapping("/usercrud/deactivate/{username}")
-    void deactivateUser(@PathVariable String username);
+    @PostMapping("/usercrud/deactivate/{userId}")
+    void deactivateUser(@PathVariable Integer userId);
 
-    @PutMapping("/usercrud/update/{username}")
-    String updateUser(@RequestBody UpdateUserDTO dto, @PathVariable String username);
+    @PutMapping("/usercrud/update/{userId}")
+    String updateUser(@RequestBody UpdateRequestDto dto, @PathVariable Integer userId);
 
-    @PostMapping("/usercrud/recover/{username}")
-    void recoverUser(@PathVariable String username);
+    @PostMapping("/usercrud/recover/{userId}")
+    void recoverUser(@PathVariable Integer userId);
 
-    @PostMapping("/usercrud/set-public/{username}")
-    void setPublic(@PathVariable String username);
+    @PostMapping("/usercrud/set-public/{userId}")
+    void setPublic(@PathVariable Integer userId);
 
-    @PostMapping("/usercrud/set-private/{username}")
-    void setPrivate(@PathVariable String username);
+    @PostMapping("/usercrud/set-private/{userId}")
+    void setPrivate(@PathVariable Integer userId);
 
-    @DeleteMapping("/usercrud/delete/{username}")
-    void deleteUser(@PathVariable String username);
+    @DeleteMapping("/usercrud/delete/{userId}")
+    void deleteUser(@PathVariable Integer userId);
 }

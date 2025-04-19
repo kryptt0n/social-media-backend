@@ -13,4 +13,5 @@ public class UserRegisterDTO {
     private String email;
     private String bio;
     private Boolean isPublic;
+    private String base64Image;
 }
