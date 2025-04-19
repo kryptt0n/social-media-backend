@@ -14,5 +14,8 @@ public interface PostClient {
 
     @GetMapping("/posts/stats")
     StatsResponseDto getPostStats();
+
+    record PostStatsResponse(Long totalPosts, Long reportedPosts, Long dailyPosts) {}
+
 }
 

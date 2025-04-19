@@ -3,6 +3,7 @@ package com.example.msssuserprofilecrud.controllers;
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
 import com.example.msssuserprofilecrud.dto.UserProfileDTO;
 import com.example.msssuserprofilecrud.dto.UserEmailDTO;
+import com.example.msssuserprofilecrud.dto.UserStatsResponse;
 import com.example.msssuserprofilecrud.dto.UserProfileRegisterDTO;
 import com.example.msssuserprofilecrud.entities.User;
 import com.example.msssuserprofilecrud.services.UserCrudService;
@@ -109,6 +110,11 @@ public class UserCrudController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/stats")
+    public UserStatsResponse getUserStats() {
+        return userService.getUserStats();
     }
 
 }

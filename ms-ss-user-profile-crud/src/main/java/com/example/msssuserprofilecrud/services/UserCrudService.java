@@ -4,6 +4,7 @@ package com.example.msssuserprofilecrud.services;
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
 import com.example.msssuserprofilecrud.dto.UserProfileDTO;
 import com.example.msssuserprofilecrud.dto.UserEmailDTO;
+import com.example.msssuserprofilecrud.dto.UserStatsResponse;
 import com.example.msssuserprofilecrud.entities.User;
 import com.example.msssuserprofilecrud.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -100,5 +101,13 @@ public class UserCrudService {
         }
 
         return result;
+    }
+
+    public UserStatsResponse getUserStats() {
+        long total = userRepository.count();
+        long publicCount = userRepository.countByIsPublicTrue();
+        long privateCount = userRepository.countByIsPublicFalse();
+
+        return new UserStatsResponse(total, publicCount, privateCount);
     }
 }

@@ -8,6 +8,7 @@ import com.example.msosadmin.feign.UserClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminService {
@@ -30,10 +31,21 @@ public class AdminService {
         return postClient.getReportedPosts();
     }
 
-    public StatsResponseDto getDashboardStats() {
-        return postClient.getPostStats();
-    }
+    public StatsResponseDto getCombinedStats() {
+        var postStats = postClient.getPostStats();
+        var userStats = userClient.getUserStats();
 
+        return new StatsResponseDto(
+                postStats.getTotalPosts(),
+                postStats.getReportedPosts(),
+                postStats.getDailyPosts(),
+                userStats.totalUsers(),
+                Map.of(
+                        "public", userStats.publicAccounts(),
+                        "private", userStats.privateAccounts()
+                )
+        );
+    }
     public void deactivateUser(Integer userId) {
         userClient.deactivateUser(userId);
     }

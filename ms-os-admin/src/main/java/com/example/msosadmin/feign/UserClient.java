@@ -15,5 +15,10 @@ public interface UserClient {
 
     @PostMapping("/usercrud/deactivate/{userId}")
     void deactivateUser(@PathVariable("userId") Integer userId);
+
+    @GetMapping("/usercrud/stats")
+    UserStatsResponse getUserStats();
+
+    record UserStatsResponse(Long totalUsers, Long publicAccounts, Long privateAccounts) {}
 }
 

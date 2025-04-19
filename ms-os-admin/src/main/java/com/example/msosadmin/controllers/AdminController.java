@@ -7,10 +7,11 @@ import com.example.msosadmin.services.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 public class AdminController {
 
     private final AdminService adminService;
@@ -42,7 +43,7 @@ public class AdminController {
 
     @GetMapping("/stats")
     public ResponseEntity<StatsResponseDto> getStats() {
-        return ResponseEntity.ok(adminService.getDashboardStats());
+        return ResponseEntity.ok(adminService.getCombinedStats());
     }
 
     @PostMapping("/deactivate/{userId}")
