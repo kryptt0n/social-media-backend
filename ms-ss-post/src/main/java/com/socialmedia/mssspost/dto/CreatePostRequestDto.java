@@ -9,6 +9,6 @@ public class CreatePostRequestDto {
     @NotNull(message = "Username is required")
     private String username;
 
-    @NotBlank(message = "Content must not be empty")
+//    @NotBlank(message = "Content must not be empty")
     private String content;
 }
