@@ -18,39 +18,39 @@ public class FollowService {
 
     public Follow follow(FollowRequestDto requestDto) {
         Follow follow = new Follow();
-        follow.setFollowerId(requestDto.getFollowerId());
-        follow.setFollowedId(requestDto.getFollowedId());
+        follow.setFollowerName(requestDto.getFollowerName());
+        follow.setFollowedName(requestDto.getFollowedName());
         return followRepository.save(follow);
     }
 
-    public void unfollow(Integer followerId, Integer followedId) {
-        Optional<Follow> follow = followRepository.findByFollowedIdAndFollowerId(followerId, followedId);
+    public void unfollow(String followerName, String followedName) {
+        Optional<Follow> follow = followRepository.findByFollowerNameAndFollowedName(followerName, followedName);
         follow.ifPresent(followRepository::delete);
     }
 
-    public List<Integer> getFollowers(Integer userId) {
-        return followRepository.findAllByFollowedId(userId).stream()
-                .map(Follow::getFollowerId)
+    public List<String> getFollowers(String followedName) {
+        return followRepository.findAllByFollowedName(followedName).stream()
+                .map(Follow::getFollowerName)
                 .toList();
     }
 
-    public List<Integer> getFollowed(Integer userId) {
-        return followRepository.findAllByFollowerId(userId).stream()
-                .map(Follow::getFollowedId)
+    public List<String> getFollowed(String followerName) {
+        return followRepository.findAllByFollowerName(followerName).stream()
+                .map(Follow::getFollowedName)
                 .toList();
     }
 
-    public boolean isFollowed(Integer userId, Integer currentUserId) {
-        Optional<Follow> follow = followRepository.findByFollowedIdAndFollowerId(userId, currentUserId);
+    public boolean isFollowed(String currentName, String username) {
+        Optional<Follow> follow = followRepository.findByFollowerNameAndFollowedName(currentName, username);
         return follow.isPresent();
     }
 
-    public Integer countFollowers(Integer userId) {
-        return followRepository.findAllByFollowedId(userId).size();
+    public Integer countFollowers(String username) {
+        return followRepository.findAllByFollowedName(username).size();
     }
 
-    public Integer countFollowed(Integer userId) {
-        return followRepository.findAllByFollowerId(userId).size();
+    public Integer countFollowed(String username) {
+        return followRepository.findAllByFollowerName(username).size();
     }
 }
 

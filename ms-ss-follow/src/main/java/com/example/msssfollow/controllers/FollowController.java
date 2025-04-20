@@ -20,40 +20,40 @@ public class FollowController {
         this.followService = followService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Void> follow(@RequestBody FollowRequestDto requestDto) {
         followService.follow(requestDto);
         return ResponseEntity.status(201).build();
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> unfollow(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
-        followService.unfollow(userId, currentUserId);
+    @DeleteMapping("/unfollow")
+    public ResponseEntity<Void> unfollow(@RequestParam String followerName, @RequestParam String followedName) {
+        followService.unfollow(followerName, followedName);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/followers/{userId}")
-    public ResponseEntity<List<Integer>> getFollowers(@PathVariable Integer userId) {
-        return ResponseEntity.ok(followService.getFollowers(userId));
+    @GetMapping("/followers/{username}")
+    public ResponseEntity<List<String>> getFollowers(@PathVariable String username) {
+        return ResponseEntity.ok(followService.getFollowers(username));
     }
 
-    @GetMapping("/followed/{userId}")
-    public ResponseEntity<List<Integer>> getFollowed(@PathVariable Integer userId) {
-        return ResponseEntity.ok(followService.getFollowed(userId));
+    @GetMapping("/followed/{username}")
+    public ResponseEntity<List<String>> getFollowed(@PathVariable String username) {
+        return ResponseEntity.ok(followService.getFollowed(username));
     }
 
-    @GetMapping("/follow-data/{userId}")
-    public ResponseEntity<FollowResponseDto> getData(@PathVariable Integer userId) {
+    @GetMapping("/follow-data/{username}")
+    public ResponseEntity<FollowResponseDto> getData(@PathVariable String username) {
         FollowResponseDto responseDto = new FollowResponseDto();
-        responseDto.setFollowedCount(followService.countFollowed(userId));
-        responseDto.setFollowerCount(followService.countFollowers(userId));
+        responseDto.setFollowedCount(followService.countFollowed(username));
+        responseDto.setFollowerCount(followService.countFollowers(username));
 
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/is-followed")
-    public ResponseEntity<Boolean> getIsFollowed(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
-        return ResponseEntity.ok(followService.isFollowed(userId, currentUserId));
+    public ResponseEntity<Boolean> getIsFollowed(@RequestParam String currentName, @RequestParam String username) {
+        return ResponseEntity.ok(followService.isFollowed(currentName, username));
     }
 }
 

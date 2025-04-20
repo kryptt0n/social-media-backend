@@ -19,7 +19,7 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Integer followerId;
-    private Integer followedId;
+    private String followerName;
+    private String followedName;
     private LocalDateTime followedAt = LocalDateTime.now();
 }

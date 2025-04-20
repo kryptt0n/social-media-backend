@@ -6,6 +6,7 @@ import com.example.msosuserprofile.feign.FollowClient;
 import com.example.msosuserprofile.feign.MediaClient;
 import com.example.msosuserprofile.feign.UserCrudClient;
 import com.example.msosuserprofile.kafka.MediaProducer;
+import com.example.msosuserprofile.service.ProfileListService;
 import feign.FeignException;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +31,7 @@ public class UserProfileController {
     private final MediaProducer mediaProducer;
     private final MediaClient mediaClient;
     private final FollowClient followClient;
+    private final ProfileListService profileListService;
 
     @PostMapping("/register")
     public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO user) {
@@ -59,7 +62,7 @@ public class UserProfileController {
             Integer userId = credentials.getUserId();
             UserProfileDTO userProfileDto = userCrudClient.getUser(userId);
             Optional<MediaResponseDto> mediaDto = mediaClient.findBySourceIdAndProvider(userProfileDto.id().toString(), "PROFILE");
-            FollowResponseDto followResponseDto = followClient.getFollowData(userId);
+            FollowResponseDto followResponseDto = followClient.getFollowData(username);
 
             UserDataResponseDto userDataResponseDto = new UserDataResponseDto();
             userDataResponseDto.setUsername(credentials.getUsername());
@@ -79,20 +82,36 @@ public class UserProfileController {
     }
 
     @GetMapping("/is-followed")
-    public ResponseEntity<Boolean> getRelationship(@RequestParam Integer userId, @RequestParam Integer currentUserId) {
-        return followClient.getIsFollowed(userId, currentUserId);
+    public ResponseEntity<Boolean> getRelationship(@RequestParam String currentUsername, @RequestParam String username) {
+        return ResponseEntity.ok(followClient.getIsFollowed(currentUsername, username));
     }
 
     @PostMapping("/follow")
     public ResponseEntity<Void> follow(@RequestBody FollowRequestDto followRequestDto) {
+        System.out.println("follow info: " + followRequestDto.getFollowerName() + " " + followRequestDto.getFollowedName());
         followClient.follow(followRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/follow")
-    public ResponseEntity<Void> unfollow(@RequestParam Integer followerId, @RequestParam Integer followedId){
-        followClient.unfollow(followerId, followedId);
+    @PostMapping("/unfollow")
+    public ResponseEntity<Void> unfollow(@RequestBody FollowRequestDto followRequestDto){
+
+        followClient.unfollow(followRequestDto.getFollowerName(), followRequestDto.getFollowedName());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/followers/{username}")
+    public ResponseEntity<List<UserDataResponseDto>> getFollowers(@PathVariable String username){
+        List<String> userList = followClient.getFollowers(username);
+        List<UserDataResponseDto> followers = profileListService.mapUsernamesToUserData(userList);
+        return ResponseEntity.ok(followers);
+    }
+
+    @GetMapping("/followed/{username}")
+    public ResponseEntity<List<UserDataResponseDto>> getFollowed(@PathVariable String username){
+        List<String> userList = followClient.getFollowed(username);
+        List<UserDataResponseDto> followers = profileListService.mapUsernamesToUserData(userList);
+        return ResponseEntity.ok(followers);
     }
 
     @PostMapping("/deactivate/{username}")

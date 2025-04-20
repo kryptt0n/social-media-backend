@@ -31,5 +31,6 @@ public class PostWorkflowRunner {
         commentEnrichmentProcessor.process(context);
         postAggregatorProcessor.process(context);
         mediaEnrichmentProcessor.process(context);
+        mediaEnrichmentProcessor.processAvatar(context);
     }
 }
