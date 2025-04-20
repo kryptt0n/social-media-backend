@@ -182,4 +182,11 @@ public class PostOrchestrationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/report/{postId}")
+    public ResponseEntity<Void> reportPost(@PathVariable Integer postId) {
+         postClient.reportPost(postId);
+        return ResponseEntity.noContent().build();
+
+    }
+
 }

@@ -20,7 +20,7 @@ public class AuthFilter implements GlobalFilter {
     private static final Logger log = LoggerFactory.getLogger(AuthFilter.class);
     private final WebClient.Builder webClientBuilder;
     private final List<String> openPaths = List.of(
-            "/identity/token", "/identity/register", "/identity/forgot-password", "/identity/reset", "/users/register", "/admin/stats", "/admin/users", "/admin/stats", "/admin/posts/reported"
+            "/identity/token", "/identity/register", "/identity/forgot-password", "/identity/reset", "/users/register"
     );
 
     public AuthFilter(WebClient.Builder webClientBuilder) {

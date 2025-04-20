@@ -5,6 +5,7 @@ import com.socialmedia.msospost.dto.PostResponseDto;
 import com.socialmedia.msospost.dto.StatsResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,5 +48,8 @@ public interface PostClient {
 
     @DeleteMapping("/{postId}")
     void deletePost(@PathVariable Integer postId);
+
+    @PostMapping("/report/{postId}")
+    void reportPost(@PathVariable("postId") Integer postId);
 }
 
