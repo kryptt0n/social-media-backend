@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FollowRequestDto {
-    private Integer followerId;
-    private Integer followedId;
+    private String followerName;
+    private String followedName;
 }

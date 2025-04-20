@@ -10,21 +10,21 @@ import java.util.List;
 
 @FeignClient(name = "ms-ss-follow")
 public interface FollowClient {
-    @GetMapping("/follow/followers/{userId}")
-    List<Integer> getFollowers(@PathVariable Integer userId);
+    @GetMapping("/follow/followers/{username}")
+    List<String> getFollowers(@PathVariable String username);
 
-    @GetMapping("/follow/followed/{userId}")
-    List<Integer> getFollowed(@PathVariable Integer userId);
+    @GetMapping("/follow/followed/{username}")
+    List<String> getFollowed(@PathVariable String username);
 
-    @PostMapping("/follow")
+    @PostMapping("/follow/create")
     Void follow(FollowRequestDto followRequestDto);
 
-    @DeleteMapping("/follow")
-    Void unfollow(@RequestParam Integer followerId, @RequestParam Integer followedId);
+    @DeleteMapping("/follow/unfollow")
+    Void unfollow(@RequestParam String followerName, @RequestParam String followedName);
 
-    @GetMapping("/follow/follow-data/{userId}")
-    FollowResponseDto getFollowData(@PathVariable Integer userId);
+    @GetMapping("/follow/follow-data/{username}")
+    FollowResponseDto getFollowData(@PathVariable String username);
 
     @GetMapping("/follow/is-followed")
-    ResponseEntity<Boolean> getIsFollowed(@RequestParam Integer userId, @RequestParam Integer currentUserId);
+    Boolean getIsFollowed(@RequestParam String currentName, @RequestParam String username);
 }

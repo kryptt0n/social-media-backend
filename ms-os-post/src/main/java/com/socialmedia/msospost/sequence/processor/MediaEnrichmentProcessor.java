@@ -1,5 +1,6 @@
 package com.socialmedia.msospost.sequence.processor;
 
+import com.socialmedia.msospost.client.CredentialClient;
 import com.socialmedia.msospost.client.MediaClient;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.SequenceProcessor;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class MediaEnrichmentProcessor implements SequenceProcessor {
 
     private final MediaClient mediaClient;
-
+    private final CredentialClient credentialClient;
     private static final String PROVIDER_POST = "POST"; // Avoids hardcoding throughout
 
     @Override
@@ -33,5 +34,27 @@ public class MediaEnrichmentProcessor implements SequenceProcessor {
                 },
                 () -> System.out.println("🚫 No media found for postId: " + postId)
             );
+    }
+
+    public void processAvatar(PostWorkflowContext context) {
+        String username = context.getUsername();
+
+        String userId = credentialClient.getCredentialsByUsername(username).getUserId().toString();
+
+        System.out.println(" avatar user id: " + userId);
+
+        mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
+                .ifPresentOrElse(
+                        media -> {
+                            String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
+                            if (context.getFinalDto() != null) {
+                                context.getFinalDto().setAvatarUrl(imageUrl);
+                                System.out.println("Enriched PostFeedItemDto with avatar: " + imageUrl);
+                            } else {
+                                System.out.println("PostFeedItemDto is null; skipping image enrichment.");
+                            }
+                        },
+                        () -> System.out.println("No media found for username: " + username)
+                );
     }
 }

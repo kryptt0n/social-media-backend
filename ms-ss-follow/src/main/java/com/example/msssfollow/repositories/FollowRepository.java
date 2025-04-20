@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Integer> {
-    Optional<Follow> findByFollowedIdAndFollowerId(Integer followedId, Integer followerId);
-    List<Follow> findAllByFollowerId(Integer followerId);
-    List<Follow> findAllByFollowedId(Integer followedId);
+    Optional<Follow> findByFollowerNameAndFollowedName(String followerName, String folowedName);
+    List<Follow> findAllByFollowerName(String followerName);
+    List<Follow> findAllByFollowedName(String followedName);
 }

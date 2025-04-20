@@ -1,5 +1,7 @@
 package com.socialmedia.msospost.controller;
 
+import com.socialmedia.msospost.client.CredentialClient;
+import com.socialmedia.msospost.client.MediaClient;
 import com.socialmedia.msospost.client.PostClient;
 import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
@@ -29,6 +31,8 @@ public class PostOrchestrationController {
     private final CommentOrchestratorService commentOrchestratorService;
     private final DeletePostProcessor deletePostProcessor;
     private final PostClient postClient;
+    private final CredentialClient credentialClient;
+    private final MediaClient mediaClient;
 
     @GetMapping("/search")
     public ResponseEntity<Page<PostFeedItemDto>> searchPosts(
@@ -40,6 +44,8 @@ public class PostOrchestrationController {
                 .map(post -> {
                     PostWorkflowContext ctx = new PostWorkflowContext();
                     ctx.setPostId(post.getId());
+                    ctx.setUsername(post.getUsername());
+                    System.out.println("avatar : " + post.getUsername());
                     runner.runFetchFlow(ctx);
                     return ctx.getFinalDto();
                 }).collect(Collectors.toList());
@@ -56,6 +62,7 @@ public class PostOrchestrationController {
         List<PostFeedItemDto> enriched = postPage.getContent().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
+            ctx.setUsername(post.getUsername());
             runner.runFetchFlow(ctx);
             return ctx.getFinalDto();
         }).toList();
@@ -79,6 +86,7 @@ public class PostOrchestrationController {
         List<PostFeedItemDto> enriched = postClient.getFollowedPosts(username).stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
+            ctx.setUsername(post.getUsername());
             runner.runFetchFlow(ctx);
             return ctx.getFinalDto();
         }).toList();
@@ -157,7 +165,21 @@ public class PostOrchestrationController {
 
     @GetMapping("/comment/post/{postId}")
     public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Integer postId) {
-        return ResponseEntity.ok(commentOrchestratorService.getCommentsByPost(postId));
+        List<CommentResponseDto> commentList = commentOrchestratorService.getCommentsByPost(postId);
+
+        commentList.forEach(comment -> {
+            String userId = credentialClient.getCredentialsByUsername(comment.getUsername()).getUserId().toString();
+            mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
+                    .ifPresentOrElse(
+                            media -> {
+                                String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
+                                comment.setAvatarUrl(imageUrl);
+                            },
+                            () -> System.out.println("No media found for username: " + userId)
+                    );
+        });
+
+        return ResponseEntity.ok(commentList);
     }
 
     @PostMapping("/comment")
