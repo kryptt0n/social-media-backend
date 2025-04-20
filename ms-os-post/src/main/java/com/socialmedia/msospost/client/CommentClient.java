@@ -10,7 +10,7 @@ import java.util.List;
 @FeignClient(name = "ms-ss-comment")
 public interface CommentClient {
 
-    @GetMapping("/comment/{postId}")
+    @GetMapping("/comment/post/{postId}")
     List<CommentResponseDto> getCommentsByPost(@PathVariable Integer postId);
 
     @PostMapping("/comment")
@@ -18,5 +18,8 @@ public interface CommentClient {
 
     @DeleteMapping("/comment/post/{postId}")
     void deleteAllByPostId(@PathVariable Integer postId);
+
+    @DeleteMapping("/comment/{commentId}")
+    void deleteCommentById(@PathVariable Integer commentId);
 }
 

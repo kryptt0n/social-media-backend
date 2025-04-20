@@ -45,7 +45,8 @@ public class PostOrchestrationController {
                 }).collect(Collectors.toList());
 
         Page<PostFeedItemDto> enrichedPage = new PageImpl<>(enriched, postPage.getPageable(), postPage.getTotalElements());
-        return ResponseEntity.ok(enrichedPage);    }
+        return ResponseEntity.ok(enrichedPage);
+    }
 
     @GetMapping("/user/{username}")
     public ResponseEntity<Page<PostFeedItemDto>> getPostsByUser(@PathVariable String username,
@@ -62,16 +63,16 @@ public class PostOrchestrationController {
         return ResponseEntity.ok(enrichedPage);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<PostFeedItemDto>> getAllPosts() {
-        List<PostFeedItemDto> enriched = postClient.getAllPosts().stream().map(post -> {
-            PostWorkflowContext ctx = new PostWorkflowContext();
-            ctx.setPostId(post.getId());
-            runner.runFetchFlow(ctx);
-            return ctx.getFinalDto();
-        }).toList();
-        return ResponseEntity.ok(enriched);
-    }
+//    @GetMapping("/all")
+//    public ResponseEntity<List<PostFeedItemDto>> getAllPosts() {
+//        List<PostFeedItemDto> enriched = postClient.getAllPosts().stream().map(post -> {
+//            PostWorkflowContext ctx = new PostWorkflowContext();
+//            ctx.setPostId(post.getId());
+//            runner.runFetchFlow(ctx);
+//            return ctx.getFinalDto();
+//        }).toList();
+//        return ResponseEntity.ok(enriched);
+//    }
 
     @GetMapping("/followed/{username}")
     public ResponseEntity<List<PostFeedItemDto>> getFollowedPosts(@PathVariable String username) {
@@ -154,10 +155,21 @@ public class PostOrchestrationController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/comment/post/{postId}")
+    public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable Integer postId) {
+        return ResponseEntity.ok(commentOrchestratorService.getCommentsByPost(postId));
+    }
+
     @PostMapping("/comment")
     public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto requestDto) {
         System.out.println("📝 Creating comment: " + requestDto);
         return ResponseEntity.ok(commentOrchestratorService.createComment(requestDto));
+    }
+
+    @DeleteMapping("/comment/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Integer commentId) {
+        commentOrchestratorService.deleteComment(commentId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{postId}")

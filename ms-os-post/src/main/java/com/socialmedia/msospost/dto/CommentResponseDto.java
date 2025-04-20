@@ -13,6 +13,7 @@ public class CommentResponseDto {
     private Integer id;
     private String content;
     private String username;
+    private String avatarUrl;
     private Integer postId;
     private LocalDateTime createdAt;
 }
