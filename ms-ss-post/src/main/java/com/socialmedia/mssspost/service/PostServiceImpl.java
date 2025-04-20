@@ -120,4 +120,11 @@ public class PostServiceImpl implements PostService {
                 .createdAt(post.getCreatedAt())
                 .build();
     }
+
+    public void reportPost(Integer postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
+        }
+        postRepository.reportPost(postId);
+    }
 }

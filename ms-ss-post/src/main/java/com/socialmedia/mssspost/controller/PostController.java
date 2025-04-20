@@ -93,5 +93,11 @@ public class PostController {
     public ResponseEntity<StatsResponseDto> getStats() {
         return ResponseEntity.ok(postService.getStats());
     }
+
+    @PostMapping("/report/{postId}")
+    public ResponseEntity<Void> reportPost(@PathVariable Integer postId) {
+        postService.reportPost(postId);
+        return ResponseEntity.ok().build();
+    }
 }
 

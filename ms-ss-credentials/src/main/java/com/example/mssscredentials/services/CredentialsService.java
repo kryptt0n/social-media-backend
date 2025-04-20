@@ -106,4 +106,10 @@ public class CredentialsService {
         return credentialsByUsernameDTO;
     }
 
+    public String getUsernameByUserId(Integer userId) {
+        return credentialRepository.findByUserId(userId)
+                .map(c -> c.getUsername())
+                .orElse(null);
+    }
+
 }

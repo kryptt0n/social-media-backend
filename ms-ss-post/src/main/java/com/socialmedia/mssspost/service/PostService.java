@@ -20,4 +20,6 @@ public interface PostService {
     List<PostResponseDto> getAllPosts();
     List<PostResponseDto> getReportedPosts();
     StatsResponseDto getStats();
+    void reportPost(Integer postId);
+
 }

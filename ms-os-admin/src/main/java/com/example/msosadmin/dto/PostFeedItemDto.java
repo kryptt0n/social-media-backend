@@ -19,7 +19,6 @@ public class PostFeedItemDto {
     private String imageUrl;
     private String avatarUrl;
     private Integer likeCount;
-    private Boolean likedByCurrentUser;
     private LocalDateTime createdAt;
     private List<CommentResponseDto> comments;
 }

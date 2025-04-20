@@ -48,4 +48,13 @@ public class CredentialsController {
         credentialsService.resetPassword(token, resetPasswordDTO.getNewPassword());
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/username/{userId}")
+    public ResponseEntity<UsernameResponse> getUsernameByUserId(@PathVariable Integer userId) {
+        String username = credentialsService.getUsernameByUserId(userId);
+        if (username == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new UsernameResponse(username));
+    }
 }

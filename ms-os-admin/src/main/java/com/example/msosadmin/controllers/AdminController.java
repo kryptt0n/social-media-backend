@@ -22,10 +22,7 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
-        System.out.println("🔹 AdminController: getAllUsers() API called");
-        List<UserProfileDTO> users = adminService.getAllUsers();
-        System.out.println("🔹 Response size: " + users.size());
-
+        List<UserProfileDTO> users = adminService.getAllUsersWithUsername();
         if (users.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -50,5 +47,11 @@ public class AdminController {
     public ResponseEntity<Void> deactivateUser(@PathVariable Integer userId) {
         adminService.deactivateUser(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Integer postId) {
+        adminService.deletePostById(postId);
+        return ResponseEntity.noContent().build();
     }
 }
