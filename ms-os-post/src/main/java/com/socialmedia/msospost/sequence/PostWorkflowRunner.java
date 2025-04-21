@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class PostWorkflowRunner {
 
     private final CreatePostProcessor createPostProcessor;
-    private final DummyPostFetchProcessor dummyPostFetchProcessor;
+    private final FetchPostByIdProcessor fetchPostByIdProcessor;
     private final PostAggregatorProcessor postAggregatorProcessor;
     private final LikeEnrichmentProcessor likeEnrichmentProcessor;
     private final CommentEnrichmentProcessor commentEnrichmentProcessor;
@@ -18,7 +18,7 @@ public class PostWorkflowRunner {
     public void runCreateFlow(PostWorkflowContext context) {
         System.out.println("▶️ Running Post Creation Workflow");
         createPostProcessor.process(context);
-        dummyPostFetchProcessor.process(context);
+        fetchPostByIdProcessor.process(context);
         likeEnrichmentProcessor.process(context);
         commentEnrichmentProcessor.process(context);
         postAggregatorProcessor.process(context);
@@ -26,7 +26,7 @@ public class PostWorkflowRunner {
 
     public void runFetchFlow(PostWorkflowContext context) {
         System.out.println("▶️ Running Post Fetch Workflow");
-        dummyPostFetchProcessor.process(context);
+        fetchPostByIdProcessor.process(context);
         likeEnrichmentProcessor.process(context);
         commentEnrichmentProcessor.process(context);
         postAggregatorProcessor.process(context);

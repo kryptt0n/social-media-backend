@@ -57,11 +57,15 @@ public class PostController {
     }
 
     // Get posts from followed users
-    // This will be handled through orchestration. Here, we just stub the endpoint.
-    @GetMapping("/followed/{username}")
-    public ResponseEntity<List<PostResponseDto>> getPostsFromFollowedUsers() {
-        // todo
-        return ResponseEntity.notFound().build();
+    @PostMapping("/followed")
+    public ResponseEntity<Page<PostResponseDto>> getPostsFromFollowedUsernames(
+            @RequestBody List<String> usernames,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<PostResponseDto> posts = postService.getByFollowedUsernames(usernames, pageable);
+        return ResponseEntity.ok(posts);
     }
 
     // Create a new post

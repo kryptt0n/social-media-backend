@@ -28,9 +28,11 @@ public interface PostClient {
     @GetMapping
     List<PostResponseDto> getAllPosts();
 
-    // 5. GET /posts/followed/{username}
-    @GetMapping("/followed/{username}")
-    List<PostResponseDto> getFollowedPosts(@PathVariable String username);
+    // 5. POST /posts/followed/
+    @PostMapping("/followed")
+    Page<PostResponseDto> getFollowedPosts(@RequestBody List<String> usernames,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "10") int size);
 
     // 6. GET /posts/reported
     @GetMapping("/reported")

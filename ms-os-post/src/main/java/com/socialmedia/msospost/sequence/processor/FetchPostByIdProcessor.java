@@ -18,7 +18,13 @@ public class FetchPostByIdProcessor implements SequenceProcessor {
         if (context.getPostId() == null) {
             throw new IllegalStateException("Post ID must not be null before fetching post");
         }
+
+        System.out.println("🔍 FetchPostByIdProcessor called with postId: " + context.getPostId());
         PostResponseDto post = postClient.getPostById(context.getPostId());
+
         context.setPost(post);
+        context.setUsername(post.getUsername());
+
+        System.out.println("📦 Fetched post with ID: " + post.getId() + ", username: " + post.getUsername());
     }
 }

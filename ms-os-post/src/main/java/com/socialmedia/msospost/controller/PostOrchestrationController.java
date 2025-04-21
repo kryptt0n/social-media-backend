@@ -7,6 +7,7 @@ import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.PostWorkflowRunner;
 import com.socialmedia.msospost.sequence.processor.LikePostProcessor;
+import com.socialmedia.msospost.sequence.processor.FollowedPostsProcessor;
 import com.socialmedia.msospost.sequence.processor.UnlikePostProcessor;
 import com.socialmedia.msospost.sequence.processor.DeletePostProcessor;
 import com.socialmedia.msospost.service.CommentOrchestratorService;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class PostOrchestrationController {
 
     private final PostWorkflowRunner runner;
+    private final FollowedPostsProcessor followedPostsProcessor;
     private final LikePostProcessor likePostProcessor;
     private final UnlikePostProcessor unlikePostProcessor;
     private final CommentOrchestratorService commentOrchestratorService;
@@ -82,15 +84,19 @@ public class PostOrchestrationController {
 //    }
 
     @GetMapping("/followed/{username}")
-    public ResponseEntity<List<PostFeedItemDto>> getFollowedPosts(@PathVariable String username) {
-        List<PostFeedItemDto> enriched = postClient.getFollowedPosts(username).stream().map(post -> {
+    public ResponseEntity<Page<PostFeedItemDto>> getFollowedPosts(@PathVariable String username,
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
+        Page<PostResponseDto> followedPosts = followedPostsProcessor.getFollowedPosts(username, page, size);
+        List<PostFeedItemDto> enriched = followedPosts.getContent().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
             ctx.setUsername(post.getUsername());
             runner.runFetchFlow(ctx);
             return ctx.getFinalDto();
         }).toList();
-        return ResponseEntity.ok(enriched);
+
+        return ResponseEntity.ok(new PageImpl<>(enriched, followedPosts.getPageable(), followedPosts.getTotalElements()));
     }
 
     @GetMapping("/reported")

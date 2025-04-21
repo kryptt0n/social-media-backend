@@ -39,22 +39,32 @@ public class MediaEnrichmentProcessor implements SequenceProcessor {
     public void processAvatar(PostWorkflowContext context) {
         String username = context.getUsername();
 
-        String userId = credentialClient.getCredentialsByUsername(username).getUserId().toString();
+        if (username == null || username.isBlank()) {
+            System.out.println("⚠️ Username is null or blank; skipping avatar enrichment.");
+            return;
+        }
 
-        System.out.println(" avatar user id: " + userId);
+        try {
+            String userId = credentialClient.getCredentialsByUsername(username).getUserId().toString();
+            System.out.println("🧑 Avatar user ID: " + userId);
 
-        mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
-                .ifPresentOrElse(
-                        media -> {
-                            String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
-                            if (context.getFinalDto() != null) {
-                                context.getFinalDto().setAvatarUrl(imageUrl);
-                                System.out.println("Enriched PostFeedItemDto with avatar: " + imageUrl);
-                            } else {
-                                System.out.println("PostFeedItemDto is null; skipping image enrichment.");
-                            }
-                        },
-                        () -> System.out.println("No media found for username: " + username)
-                );
+            mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
+                    .ifPresentOrElse(
+                            media -> {
+                                String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
+                                if (context.getFinalDto() != null) {
+                                    context.getFinalDto().setAvatarUrl(imageUrl);
+                                    System.out.println("🧑‍🎨 Enriched PostFeedItemDto with avatar: " + imageUrl);
+                                } else {
+                                    System.out.println("⚠️ PostFeedItemDto is null; skipping avatar enrichment.");
+                                }
+                            },
+                            () -> System.out.println("🚫 No avatar media found for username: " + username)
+                    );
+        } catch (Exception ex) {
+            System.out.println("❌ Failed to fetch credentials for username: " + username);
+            ex.printStackTrace();
+        }
     }
+
 }
