@@ -4,6 +4,7 @@ package com.example.msssfollow.services;
 import com.example.msssfollow.dto.FollowRequestDto;
 import com.example.msssfollow.entities.Follow;
 import com.example.msssfollow.repositories.FollowRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +52,12 @@ public class FollowService {
 
     public Integer countFollowed(String username) {
         return followRepository.findAllByFollowerName(username).size();
+    }
+
+    @Transactional
+    public void deleteAll(String username){
+        followRepository.deleteAllByFollowerName(username);
+        followRepository.deleteAllByFollowedName(username);
     }
 }
 

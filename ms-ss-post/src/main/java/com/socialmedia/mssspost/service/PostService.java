@@ -22,4 +22,5 @@ public interface PostService {
     StatsResponseDto getStats();
     void reportPost(Integer postId);
 
+    void deleteAllByUsername(String username);
 }

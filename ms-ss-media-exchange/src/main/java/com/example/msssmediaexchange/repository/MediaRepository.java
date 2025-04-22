@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface MediaRepository extends JpaRepository<Media, Integer> {
     Optional<Media> findBySourceIdAndProvider(String sourceId, Provider provider);
+    void deleteMediaBySourceIdAndProvider(String sourceId, Provider provider);
 }

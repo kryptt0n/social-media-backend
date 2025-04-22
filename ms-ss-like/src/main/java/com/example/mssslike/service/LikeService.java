@@ -3,6 +3,7 @@ package com.example.mssslike.service;
 import com.example.mssslike.dto.LikeRequestDto;
 import com.example.mssslike.entity.Like;
 import com.example.mssslike.repository.LikeRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,4 +36,8 @@ public class LikeService {
         likeRepository.deleteAllByPostId(postId);
     }
 
+    @Transactional
+    public void deleteAllByUsername(String username) {
+        likeRepository.deleteAllByUsername(username);
+    }
 }

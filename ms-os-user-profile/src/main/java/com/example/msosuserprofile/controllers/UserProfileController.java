@@ -1,10 +1,7 @@
 package com.example.msosuserprofile.controllers;
 
 import com.example.msosuserprofile.dto.*;
-import com.example.msosuserprofile.feign.CredentialClient;
-import com.example.msosuserprofile.feign.FollowClient;
-import com.example.msosuserprofile.feign.MediaClient;
-import com.example.msosuserprofile.feign.UserCrudClient;
+import com.example.msosuserprofile.feign.*;
 import com.example.msosuserprofile.kafka.MediaProducer;
 import com.example.msosuserprofile.service.ProfileListService;
 import feign.FeignException;
@@ -32,6 +29,9 @@ public class UserProfileController {
     private final MediaClient mediaClient;
     private final FollowClient followClient;
     private final ProfileListService profileListService;
+    private final LikeClient likeClient;
+    private final CommentClient commentClient;
+    private final PostClient postClient;
 
     @PostMapping("/register")
     public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO user) {
@@ -130,6 +130,16 @@ public class UserProfileController {
     ) {
         Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
 
+        // replace image
+        if (dto.getBase64Image() != null && !dto.getBase64Image().isEmpty()) {
+            MediaRequestDto mediaRequestDto = new MediaRequestDto();
+            mediaRequestDto.setBase64Image(dto.getBase64Image());
+            mediaRequestDto.setProvider("PROFILE");
+            mediaRequestDto.setSourceId(userId.toString());
+
+            mediaProducer.send(mediaRequestDto);
+        }
+
         return ResponseEntity.ok(userCrudClient.updateUser(dto, userId));
     }
 
@@ -160,8 +170,14 @@ public class UserProfileController {
     @DeleteMapping("/delete-user/{username}")
     public ResponseEntity<String> deleteUser(@PathVariable String username) {
         Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
-
+        System.out.println("id: " + userId);
+        likeClient.deleteLike(username);
+        commentClient.deleteComment(username);
+        followClient.deleteFollow(username);
+        postClient.deletePost(username);
+        mediaClient.deleteBySourceIdAndProvider(username, "PROFILE");
         userCrudClient.deleteUser(userId);
+        credentialClient.deleteCredentialsByUsername(username);
         return ResponseEntity.ok("User deleted");
     }
 }

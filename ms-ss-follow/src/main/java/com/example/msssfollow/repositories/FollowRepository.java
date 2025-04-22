@@ -11,4 +11,6 @@ public interface FollowRepository extends JpaRepository<Follow, Integer> {
     Optional<Follow> findByFollowerNameAndFollowedName(String followerName, String folowedName);
     List<Follow> findAllByFollowerName(String followerName);
     List<Follow> findAllByFollowedName(String followedName);
+    void deleteAllByFollowedName(String followedName);
+    void deleteAllByFollowerName(String followerName);
 }

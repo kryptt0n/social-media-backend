@@ -103,5 +103,11 @@ public class PostController {
         postService.reportPost(postId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Void> deletePost(@PathVariable String username) {
+        postService.deleteAllByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
 }
 

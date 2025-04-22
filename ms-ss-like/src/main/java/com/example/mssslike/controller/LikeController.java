@@ -35,4 +35,10 @@ public class LikeController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Void> deleteLike(@PathVariable String username) {
+        likeService.deleteAllByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
+
 }

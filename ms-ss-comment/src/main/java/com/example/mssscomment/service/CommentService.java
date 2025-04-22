@@ -4,6 +4,7 @@ import com.example.mssscomment.dto.CommentRequestDto;
 import com.example.mssscomment.dto.CommentResponseDto;
 import com.example.mssscomment.entity.Comment;
 import com.example.mssscomment.repository.CommentRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -54,5 +55,10 @@ public class CommentService {
                 comment.getPostId(),
                 comment.getCreatedAt()
         );
+    }
+
+    @Transactional
+    public void deleteAllByUsername(String username) {
+        commentRepository.deleteAllByUsername(username);
     }
 }

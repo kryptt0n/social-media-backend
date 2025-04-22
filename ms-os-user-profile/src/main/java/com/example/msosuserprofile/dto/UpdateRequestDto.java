@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UpdateRequestDto {
-    private String imageUrl;
+    private String base64Image;
     private String bio;
 }
 

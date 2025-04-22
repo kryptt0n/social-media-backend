@@ -55,5 +55,11 @@ public class FollowController {
     public ResponseEntity<Boolean> getIsFollowed(@RequestParam String currentName, @RequestParam String username) {
         return ResponseEntity.ok(followService.isFollowed(currentName, username));
     }
+
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Void> delete(@PathVariable String username) {
+        followService.deleteAll(username);
+        return ResponseEntity.noContent().build();
+    }
 }
 

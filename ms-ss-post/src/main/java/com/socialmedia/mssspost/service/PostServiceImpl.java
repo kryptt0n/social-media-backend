@@ -6,6 +6,7 @@ import com.socialmedia.mssspost.dto.StatsResponseDto;
 import com.socialmedia.mssspost.dto.UpdatePostRequestDto;
 import com.socialmedia.mssspost.entity.Post;
 import com.socialmedia.mssspost.repository.PostRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -126,5 +127,10 @@ public class PostServiceImpl implements PostService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
         }
         postRepository.reportPost(postId);
+    }
+
+    @Transactional
+    public void deleteAllByUsername(String username) {
+        postRepository.deleteAllByUsername(username);
     }
 }

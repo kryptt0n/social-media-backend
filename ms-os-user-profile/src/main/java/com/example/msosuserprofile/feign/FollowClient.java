@@ -27,4 +27,7 @@ public interface FollowClient {
 
     @GetMapping("/follow/is-followed")
     Boolean getIsFollowed(@RequestParam String currentName, @RequestParam String username);
+
+    @DeleteMapping("/follow/delete/{username}")
+    Void deleteFollow(@PathVariable String username);
 }

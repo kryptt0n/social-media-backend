@@ -27,4 +27,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Transactional
     @Query("UPDATE Post p SET p.reported = true WHERE p.id = :postId")
     void reportPost(Integer postId);
+
+    void deleteAllByUsername(String username);
 }

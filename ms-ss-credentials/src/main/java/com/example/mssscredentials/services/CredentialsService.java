@@ -7,6 +7,7 @@ import com.example.mssscredentials.entity.ResetPasswordToken;
 import com.example.mssscredentials.feign.UserCrudClient;
 import com.example.mssscredentials.repositories.CredentialRepository;
 import com.example.mssscredentials.repositories.ResetPasswordTokenRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -110,6 +111,11 @@ public class CredentialsService {
         return credentialRepository.findByUserId(userId)
                 .map(c -> c.getUsername())
                 .orElse(null);
+    }
+
+    @Transactional
+    public void deleteCredentialByUsername(String username) {
+        credentialRepository.deleteByUsername(username);
     }
 
 }

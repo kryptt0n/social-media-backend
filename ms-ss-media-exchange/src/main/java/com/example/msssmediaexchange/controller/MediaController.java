@@ -1,10 +1,8 @@
 package com.example.msssmediaexchange.controller;
 
 import com.example.msssmediaexchange.entity.Media;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.msssmediaexchange.dto.Provider;
 import com.example.msssmediaexchange.service.MediaService;
@@ -22,5 +20,11 @@ public class MediaController {
     @GetMapping("/{sourceId}/{provider}")
     public Optional<Media> findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider){
         return mediaService.findBySourceIdAndProvider(sourceId, provider);
+    }
+
+    @DeleteMapping("/{sourceId}/{provider}")
+    public ResponseEntity<Void> deleteMediaBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider){
+        mediaService.deleteMediaBySourceIdAndProvider(sourceId, provider);
+        return ResponseEntity.noContent().build();
     }
 }

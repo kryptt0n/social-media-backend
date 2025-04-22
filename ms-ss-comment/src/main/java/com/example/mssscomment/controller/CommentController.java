@@ -37,4 +37,10 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Void> deleteComment(@PathVariable String username) {
+        commentService.deleteAllByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -57,4 +57,10 @@ public class CredentialsController {
         }
         return ResponseEntity.ok(new UsernameResponse(username));
     }
+
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<Void> deleteCredentialByUsername(@PathVariable String username) {
+        credentialsService.deleteCredentialByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
 }
