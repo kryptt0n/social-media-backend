@@ -66,11 +66,12 @@ public class UserProfileController {
 
             UserDataResponseDto userDataResponseDto = new UserDataResponseDto();
             userDataResponseDto.setUsername(credentials.getUsername());
-            mediaDto.ifPresent(mediaResponseDto -> userDataResponseDto.setImageUrl("https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + mediaResponseDto.getS3Key()));
+            mediaDto.ifPresent(mediaResponseDto -> userDataResponseDto.setImageUrl(mediaResponseDto.getUrl()));
             userDataResponseDto.setBio(userProfileDto.bio());
             userDataResponseDto.setActive(userProfileDto.isActive());
             userDataResponseDto.setFollowerCount(followResponseDto.getFollowerCount());
             userDataResponseDto.setFollowingCount(followResponseDto.getFollowedCount());
+            log.warn("User data: " + userDataResponseDto);
 
             return ResponseEntity.ok(userDataResponseDto);
         } catch (FeignException.NotFound ex) {

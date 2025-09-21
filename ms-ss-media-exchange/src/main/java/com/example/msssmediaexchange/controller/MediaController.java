@@ -1,5 +1,6 @@
 package com.example.msssmediaexchange.controller;
 
+import com.example.msssmediaexchange.dto.MediaResponse;
 import com.example.msssmediaexchange.entity.Media;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class MediaController {
     private final MediaService mediaService;
 
     @GetMapping("/{sourceId}/{provider}")
-    public Optional<Media> findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider){
+    public Optional<MediaResponse> findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider){
         return mediaService.findBySourceIdAndProvider(sourceId, provider);
     }
 
