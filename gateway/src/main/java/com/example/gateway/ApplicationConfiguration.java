@@ -23,7 +23,7 @@ public class ApplicationConfiguration {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://network.vitalysukhinin.com"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "https://sm.vitalysukhinin.com"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
