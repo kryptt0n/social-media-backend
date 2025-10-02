@@ -15,7 +15,7 @@ public class MsosidentityApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MsosidentityApplication.class, args);
-		System.out.println("V3");
+		System.out.println("V2.5");
 	}
 
 	@Bean
