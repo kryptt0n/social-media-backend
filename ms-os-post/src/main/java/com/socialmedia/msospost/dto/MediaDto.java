@@ -8,4 +8,5 @@ public class MediaDto {
     private String sourceId;
     private String s3Key;
     private String provider;
+    private String url;
 }

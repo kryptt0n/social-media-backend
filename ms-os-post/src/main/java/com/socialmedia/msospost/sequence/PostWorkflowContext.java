@@ -1,7 +1,7 @@
 package com.socialmedia.msospost.sequence;
 
 import com.socialmedia.msospost.dto.PostFeedItemDto;
-import com.socialmedia.msospost.dto.PostResponseDto;
+import com.socialmedia.msospost.dto.PostDto;
 import com.socialmedia.msospost.dto.CommentResponseDto;
 import com.socialmedia.msospost.dto.UserProfileDto;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class PostWorkflowContext {
     private Integer postId;
 
     // Output
-    private PostResponseDto post;
+    private PostDto post;
     private Integer likeCount;
     private Boolean likedByCurrentUser;
     private List<CommentResponseDto> comments;

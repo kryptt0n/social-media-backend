@@ -1,9 +1,6 @@
 package com.socialmedia.mssspost.controller;
 
-import com.socialmedia.mssspost.dto.CreatePostRequestDto;
-import com.socialmedia.mssspost.dto.PostResponseDto;
-import com.socialmedia.mssspost.dto.StatsResponseDto;
-import com.socialmedia.mssspost.dto.UpdatePostRequestDto;
+import com.socialmedia.mssspost.dto.*;
 import com.socialmedia.mssspost.service.PostServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +22,7 @@ public class PostController {
 
 
     @GetMapping("/search")
-    public ResponseEntity<Page<PostResponseDto>> searchPosts(
+    public ResponseEntity<PostResponseDto> searchPosts(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -35,49 +32,50 @@ public class PostController {
 
     // Get all posts created by a specific user
     @GetMapping("/user/{username}")
-    public ResponseEntity<Page<PostResponseDto>> getPostsByUsername(@PathVariable String username,
-                                                                    @RequestParam(defaultValue = "0") int page,
-                                                                    @RequestParam(defaultValue = "10") int size
+    public ResponseEntity<PostResponseDto> getPostsByUsername(@PathVariable String username,
+                                                            @RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<PostResponseDto> posts = postService.getPostsByUsername(username, pageable);
-        return posts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(posts);
+        PostResponseDto posts = postService.getPostsByUsername(username, pageable);
+        //TODO: SHOULD NOT RESPOND WITH NOT FOUND
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> getById(@PathVariable Integer postId) {
+    public ResponseEntity<PostDto> getById(@PathVariable Integer postId) {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
     // Get all posts
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> getAllPosts() {
-        List<PostResponseDto> posts = postService.getAllPosts();
-        return posts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(posts);
+    public ResponseEntity<PostResponseDto> getAllPosts() {
+        PostResponseDto posts = postService.getAllPosts();
+        return posts.getPosts().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(posts);
     }
 
     // Get posts from followed users
     @PostMapping("/followed")
-    public ResponseEntity<Page<PostResponseDto>> getPostsFromFollowedUsernames(
+    public ResponseEntity<PostResponseDto> getPostsFromFollowedUsernames(
             @RequestBody List<String> usernames,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<PostResponseDto> posts = postService.getByFollowedUsernames(usernames, pageable);
+        PostResponseDto posts = postService.getByFollowedUsernames(usernames, pageable);
         return ResponseEntity.ok(posts);
     }
 
     // Create a new post
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody @Valid CreatePostRequestDto request) {
-        PostResponseDto created = postService.createPost(request);
+    public ResponseEntity<PostDto> createPost(@RequestBody @Valid CreatePostRequestDto request) {
+        PostDto created = postService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // Update a post by ID
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Integer postId, @RequestBody UpdatePostRequestDto request) {
+    public ResponseEntity<PostDto> updatePost(@PathVariable Integer postId, @RequestBody UpdatePostRequestDto request) {
         return ResponseEntity.ok(postService.updatePost(postId, request));
     }
 
@@ -89,7 +87,7 @@ public class PostController {
     }
 
     @GetMapping("/reported")
-    public ResponseEntity<List<PostResponseDto>> getReportedPosts() {
+    public ResponseEntity<PostResponseDto> getReportedPosts() {
         return ResponseEntity.ok(postService.getReportedPosts());
     }
 

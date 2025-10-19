@@ -37,12 +37,12 @@ public class PostOrchestrationController {
     private final MediaClient mediaClient;
 
     @GetMapping("/search")
-    public ResponseEntity<Page<PostFeedItemDto>> searchPosts(
+    public ResponseEntity<PostFeedResponseDto> searchPosts(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<PostResponseDto> postPage = postClient.searchPosts(keyword, page, size);
-        List<PostFeedItemDto> enriched = postPage.getContent().stream()
+        PostResponseDto postResponse = postClient.searchPosts(keyword, page, size);
+        List<PostFeedItemDto> enriched = postResponse.getPosts().stream()
                 .map(post -> {
                     PostWorkflowContext ctx = new PostWorkflowContext();
                     ctx.setPostId(post.getId());
@@ -52,24 +52,38 @@ public class PostOrchestrationController {
                     return ctx.getFinalDto();
                 }).collect(Collectors.toList());
 
-        Page<PostFeedItemDto> enrichedPage = new PageImpl<>(enriched, postPage.getPageable(), postPage.getTotalElements());
-        return ResponseEntity.ok(enrichedPage);
+
+        PostFeedResponseDto response = PostFeedResponseDto
+                .builder()
+                .posts(enriched)
+                .hasMore(postResponse.isHasMore())
+                .cursor(postResponse.getCursor())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
+    //TODO Change Page to custom DTO with post list, cursor and has next boolean value for infinity scroll
     @GetMapping("/user/{username}")
-    public ResponseEntity<Page<PostFeedItemDto>> getPostsByUser(@PathVariable String username,
+    public ResponseEntity<PostFeedResponseDto> getPostsByUser(@PathVariable String username,
                                                                 @RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "10") int size) {
-        Page<PostResponseDto> postPage = postClient.getPostsByUsername(username, page, size);
-        List<PostFeedItemDto> enriched = postPage.getContent().stream().map(post -> {
+        PostResponseDto postResponse = postClient.getPostsByUsername(username, page, size);
+        List<PostFeedItemDto> enriched = postResponse.getPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
             ctx.setUsername(post.getUsername());
             runner.runFetchFlow(ctx);
             return ctx.getFinalDto();
         }).toList();
-        Page<PostFeedItemDto> enrichedPage = new PageImpl<>(enriched, postPage.getPageable(), postPage.getTotalElements());
-        return ResponseEntity.ok(enrichedPage);
+        PostFeedResponseDto response = PostFeedResponseDto
+                .builder()
+                .posts(enriched)
+                .hasMore(postResponse.isHasMore())
+                .cursor(postResponse.getCursor())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
 //    @GetMapping("/all")
@@ -84,11 +98,11 @@ public class PostOrchestrationController {
 //    }
 
     @GetMapping("/followed/{username}")
-    public ResponseEntity<Page<PostFeedItemDto>> getFollowedPosts(@PathVariable String username,
+    public ResponseEntity<PostFeedResponseDto> getFollowedPosts(@PathVariable String username,
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "10") int size) {
-        Page<PostResponseDto> followedPosts = followedPostsProcessor.getFollowedPosts(username, page, size);
-        List<PostFeedItemDto> enriched = followedPosts.getContent().stream().map(post -> {
+        PostResponseDto followedPosts = followedPostsProcessor.getFollowedPosts(username, page, size);
+        List<PostFeedItemDto> enriched = followedPosts.getPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
             ctx.setUsername(post.getUsername());
@@ -96,18 +110,35 @@ public class PostOrchestrationController {
             return ctx.getFinalDto();
         }).toList();
 
-        return ResponseEntity.ok(new PageImpl<>(enriched, followedPosts.getPageable(), followedPosts.getTotalElements()));
+        PostFeedResponseDto response = PostFeedResponseDto
+                .builder()
+                .posts(enriched)
+                .hasMore(followedPosts.isHasMore())
+                .cursor(followedPosts.getCursor())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/reported")
-    public ResponseEntity<List<PostFeedItemDto>> getReportedPosts() {
-        List<PostFeedItemDto> enriched = postClient.getReportedPosts().stream().map(post -> {
+    public ResponseEntity<PostFeedResponseDto> getReportedPosts() {
+
+        PostResponseDto postResponse = postClient.getReportedPosts();
+        List<PostFeedItemDto> enriched = postResponse.getPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
             runner.runFetchFlow(ctx);
             return ctx.getFinalDto();
         }).toList();
-        return ResponseEntity.ok(enriched);
+
+        PostFeedResponseDto response = PostFeedResponseDto
+                .builder()
+                .posts(enriched)
+                .hasMore(postResponse.isHasMore())
+                .cursor(postResponse.getCursor())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stats")
@@ -127,7 +158,7 @@ public class PostOrchestrationController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody CreatePostRequestDto requestDto) {
+    public ResponseEntity<PostDto> createPost(@RequestBody CreatePostRequestDto requestDto) {
         System.out.println("▶ [CreatePostController] Starting with username: " + requestDto.getUsername());
 
         PostWorkflowContext context = new PostWorkflowContext();
@@ -136,7 +167,7 @@ public class PostOrchestrationController {
         // ✅ Add base64Image to context for Kafka processing
         context.setBase64Image(requestDto.getBase64Image());
 
-        PostResponseDto post = new PostResponseDto();
+        PostDto post = new PostDto();
         post.setContent(requestDto.getContent());
         context.setPost(post);
 
@@ -178,7 +209,7 @@ public class PostOrchestrationController {
             mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
                     .ifPresentOrElse(
                             media -> {
-                                String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
+                                String imageUrl = media.getUrl();
                                 comment.setAvatarUrl(imageUrl);
                             },
                             () -> System.out.println("No media found for username: " + userId)

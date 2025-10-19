@@ -4,7 +4,7 @@ import com.socialmedia.msospost.client.MediaClient;
 import com.socialmedia.msospost.client.PostClient;
 import com.socialmedia.msospost.dto.CreatePostRequestDto;
 import com.socialmedia.msospost.dto.MediaPayload;
-import com.socialmedia.msospost.dto.PostResponseDto;
+import com.socialmedia.msospost.dto.PostDto;
 import com.socialmedia.msospost.kafka.MediaProducer;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.SequenceProcessor;
@@ -29,7 +29,7 @@ public class CreatePostProcessor implements SequenceProcessor {
         request.setUsername(context.getUsername());
         request.setContent(context.getPost().getContent());
 
-        PostResponseDto createdPost = postClient.createPost(request);
+        PostDto createdPost = postClient.createPost(request);
         System.out.println("✅ Post created with ID: " + createdPost.getId());
 
         context.setPost(createdPost);

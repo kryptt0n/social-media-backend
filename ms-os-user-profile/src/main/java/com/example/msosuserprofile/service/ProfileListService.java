@@ -43,7 +43,7 @@ public class ProfileListService {
                         UserDataResponseDto userData = new UserDataResponseDto();
                         userData.setUsername(credentials.getUsername());
                         mediaDto.ifPresent(mediaResponseDto -> {
-                                    String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + mediaResponseDto.getS3Key();
+                                    String imageUrl = mediaResponseDto.getUrl();
                                     userData.setImageUrl(imageUrl);
                                 }
 

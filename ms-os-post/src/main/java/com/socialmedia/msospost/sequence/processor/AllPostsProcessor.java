@@ -1,6 +1,7 @@
 package com.socialmedia.msospost.sequence.processor;
 
 import com.socialmedia.msospost.client.PostClient;
+import com.socialmedia.msospost.dto.PostDto;
 import com.socialmedia.msospost.dto.PostResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,7 +13,7 @@ import java.util.List;
 public class AllPostsProcessor {
     private final PostClient postClient;
 
-    public List<PostResponseDto> getAll() {
+    public PostResponseDto getAll() {
         return postClient.getAllPosts();
     }
 }

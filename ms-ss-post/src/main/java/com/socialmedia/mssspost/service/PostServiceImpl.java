@@ -1,16 +1,12 @@
 package com.socialmedia.mssspost.service;
 
-import com.socialmedia.mssspost.dto.CreatePostRequestDto;
-import com.socialmedia.mssspost.dto.PostResponseDto;
-import com.socialmedia.mssspost.dto.StatsResponseDto;
-import com.socialmedia.mssspost.dto.UpdatePostRequestDto;
+import com.socialmedia.mssspost.dto.*;
 import com.socialmedia.mssspost.entity.Post;
 import com.socialmedia.mssspost.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,12 +19,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostServiceImpl implements PostService {
+public class PostServiceImpl {
 
     private final PostRepository postRepository;
 
-    @Override
-    public PostResponseDto createPost(CreatePostRequestDto request) {
+
+    public PostDto createPost(CreatePostRequestDto request) {
         Post post = Post.builder()
                 .content(request.getContent())
                 .username(request.getUsername())
@@ -37,8 +33,8 @@ public class PostServiceImpl implements PostService {
         return toResponse(postRepository.save(post));
     }
 
-    @Override
-    public PostResponseDto updatePost(Integer postId, UpdatePostRequestDto request) {
+
+    public PostDto updatePost(Integer postId, UpdatePostRequestDto request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
 
@@ -48,7 +44,7 @@ public class PostServiceImpl implements PostService {
         return toResponse(updated);
     }
 
-    @Override
+
     public void deletePost(Integer id) {
         if (!postRepository.existsById(id)) {
 //            throw new RuntimeException("Post not found");
@@ -56,51 +52,88 @@ public class PostServiceImpl implements PostService {
         }
         postRepository.deleteById(id);
     }
-    @Override
-    public List<PostResponseDto> getAllPosts() {
 
-        return postRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    //TODO: Finish scroll response with hasMore and cursor for next post
+    public PostResponseDto getAllPosts() {
+
+        PostResponseDto response = PostResponseDto.builder()
+                .posts(postRepository.findAll()
+                        .stream()
+                        .map(this::toResponse)
+                        .collect(Collectors.toList()))
+                .cursor(LocalDateTime.now())
+                .hasMore(false)
+                .build();
+
+        return response;
     }
 
-    public PostResponseDto getPostById(Integer id) {
+    public PostDto getPostById(Integer id) {
         return postRepository.findById(id)
                 .map(this::toResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    @Override
-    public Page<PostResponseDto> searchPosts(String keyword, Pageable pageable) {
+
+    public PostResponseDto searchPosts(String keyword, Pageable pageable) {
         Page<Post> posts = (keyword == null || keyword.isBlank())
                 ? postRepository.findAll(pageable)
                 : postRepository.findByContentContainingIgnoreCase(keyword, pageable);
 
-        return posts.map(this::toResponse);
+        PostResponseDto response = PostResponseDto.builder()
+                .posts(posts.map(this::toResponse).stream().toList())
+                .cursor(LocalDateTime.now())
+                .hasMore(false)
+                .build();
+
+        return response;
     }
 
-    @Override
-    public Page<PostResponseDto> getPostsByUsername(String username, Pageable pageable) {
-        return postRepository.findByUsername(username, pageable)
-                .map(this::toResponse);
+
+    public PostResponseDto getPostsByUsername(String username, Pageable pageable) {
+
+        PostResponseDto response = PostResponseDto.builder()
+                .posts(postRepository.findByUsername(username, pageable)
+                        .map(this::toResponse)
+                        .stream()
+                        .collect(Collectors.toList()))
+                .cursor(LocalDateTime.now())
+                .hasMore(false)
+                .build();
+
+        return response;
     }
 
-    @Override
-    public Page<PostResponseDto> getByFollowedUsernames(List<String> usernames, Pageable pageable) {
-        return postRepository.findByUsernameIn(usernames, pageable)
-                .map(this::toResponse);
+
+    public PostResponseDto getByFollowedUsernames(List<String> usernames, Pageable pageable) {
+
+        PostResponseDto response = PostResponseDto.builder()
+                .posts(postRepository.findByUsernameIn(usernames, pageable)
+                        .map(this::toResponse).stream().toList())
+                .cursor(LocalDateTime.now())
+                .hasMore(false)
+                .build();
+
+        return response;
     }
 
-    @Override
-    public List<PostResponseDto> getReportedPosts() {
-        return postRepository.findByReported(true)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+
+    public PostResponseDto getReportedPosts() {
+
+        PostResponseDto response = PostResponseDto.builder()
+                .posts(postRepository.findByReported(true)
+                        .stream()
+                        .map(this::toResponse)
+                        .toList())
+                .cursor(LocalDateTime.now())
+                .hasMore(false)
+                .build();
+
+        return response;
+
     }
 
-    @Override
+
     public StatsResponseDto getStats() {
         StatsResponseDto statsDto = new StatsResponseDto();
         statsDto.setTotalPosts(postRepository.count());
@@ -113,8 +146,8 @@ public class PostServiceImpl implements PostService {
         return statsDto;
     }
 
-    private PostResponseDto toResponse(Post post) {
-        return PostResponseDto.builder()
+    private PostDto toResponse(Post post) {
+        return PostDto.builder()
                 .id(post.getId())
                 .content(post.getContent())
                 .username(post.getUsername())

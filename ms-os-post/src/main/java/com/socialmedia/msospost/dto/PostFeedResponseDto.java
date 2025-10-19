@@ -12,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostResponseDto {
-    private List<PostDto> posts;
+public class PostFeedResponseDto {
+    private List<PostFeedItemDto> posts;
     private boolean hasMore;
     private LocalDateTime cursor;
 }

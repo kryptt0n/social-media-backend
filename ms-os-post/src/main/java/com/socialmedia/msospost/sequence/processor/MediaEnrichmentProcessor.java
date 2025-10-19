@@ -24,7 +24,7 @@ public class MediaEnrichmentProcessor implements SequenceProcessor {
         mediaClient.findBySourceIdAndProvider(String.valueOf(postId), PROVIDER_POST)
             .ifPresentOrElse(
                 media -> {
-                    String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
+                    String imageUrl = media.getUrl();
                     if (context.getFinalDto() != null) {
                         context.getFinalDto().setImageUrl(imageUrl);
                         System.out.println("🖼️ Enriched PostFeedItemDto with imageUrl: " + imageUrl);
@@ -51,7 +51,7 @@ public class MediaEnrichmentProcessor implements SequenceProcessor {
             mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
                     .ifPresentOrElse(
                             media -> {
-                                String imageUrl = "https://desmondzbucket.s3.ca-central-1.amazonaws.com/" + media.getS3Key();
+                                String imageUrl = media.getUrl();
                                 if (context.getFinalDto() != null) {
                                     context.getFinalDto().setAvatarUrl(imageUrl);
                                     System.out.println("🧑‍🎨 Enriched PostFeedItemDto with avatar: " + imageUrl);
