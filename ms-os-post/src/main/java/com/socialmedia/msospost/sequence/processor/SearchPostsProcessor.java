@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class SearchPostsProcessor {
     private final PostClient postClient;
 
-    public PostResponseDto searchPosts(String keyword, int page, int size) {
-        return postClient.searchPosts(keyword, page, size);
+    public PostResponseDto searchPosts(String keyword, String cursor, int limit) {
+        return postClient.searchPosts(keyword, cursor, limit);
     }
 }

@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,5 +14,5 @@ import java.util.List;
 public class PostFeedResponseDto {
     private List<PostFeedItemDto> posts;
     private boolean hasMore;
-    private LocalDateTime cursor;
+    private String cursor;
 }

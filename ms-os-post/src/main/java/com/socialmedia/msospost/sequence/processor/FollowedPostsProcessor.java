@@ -21,11 +21,11 @@ public class FollowedPostsProcessor {
     private final FollowClient followClient;
     private final PostClient postClient;
 
-    public PostResponseDto getFollowedPosts(String username, int page, int size) {
+    public PostResponseDto getFollowedPosts(String username, String cursor, int limit) {
         List<String> followedUsernames = followClient.getFollowed(username);
         if (followedUsernames.isEmpty())
-            return PostResponseDto.builder().posts(new ArrayList<>()).cursor(LocalDateTime.now()).hasMore(false).build();
+            return PostResponseDto.builder().posts(new ArrayList<>()).cursor(null).hasMore(false).build();
 
-        return postClient.getFollowedPosts(followedUsernames, page, size);
+        return postClient.getFollowedPosts(followedUsernames, cursor, limit);
     }
 }

@@ -30,6 +30,6 @@ public class PostAggregatorProcessor implements SequenceProcessor {
 
         context.setFinalDto(feedItemDto);
 
-        System.out.println("🧩 Aggregated post into PostFeedItemDto: " + feedItemDto);
+//        System.out.println("🧩 Aggregated post into PostFeedItemDto: " + feedItemDto);
     }
 }

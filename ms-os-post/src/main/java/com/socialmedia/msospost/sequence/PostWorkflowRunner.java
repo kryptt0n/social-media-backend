@@ -25,7 +25,7 @@ public class PostWorkflowRunner {
     }
 
     public void runFetchFlow(PostWorkflowContext context) {
-        System.out.println("▶️ Running Post Fetch Workflow");
+//        System.out.println("▶️ Running Post Fetch Workflow");
         fetchPostByIdProcessor.process(context);
         likeEnrichmentProcessor.process(context);
         commentEnrichmentProcessor.process(context);

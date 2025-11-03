@@ -1,10 +1,9 @@
 package com.socialmedia.mssspost.controller;
 
 import com.socialmedia.mssspost.dto.*;
-import com.socialmedia.mssspost.service.PostServiceImpl;
+import com.socialmedia.mssspost.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,26 +17,24 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/posts")
 public class PostController {
-    private final PostServiceImpl postService;
+    private final PostService postService;
 
 
     @GetMapping("/search")
     public ResponseEntity<PostResponseDto> searchPosts(
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(postService.searchPosts(keyword, pageable));
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(postService.searchPosts(keyword, cursor, limit));
     }
 
     // Get all posts created by a specific user
     @GetMapping("/user/{username}")
     public ResponseEntity<PostResponseDto> getPostsByUsername(@PathVariable String username,
-                                                            @RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "10") int size
+                                                              @RequestParam(required = false) String cursor,
+                                                              @RequestParam(defaultValue = "10") int limit
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        PostResponseDto posts = postService.getPostsByUsername(username, pageable);
+        PostResponseDto posts = postService.getPostsByUsername(username, cursor, limit);
         //TODO: SHOULD NOT RESPOND WITH NOT FOUND
         return ResponseEntity.ok(posts);
     }
@@ -58,11 +55,10 @@ public class PostController {
     @PostMapping("/followed")
     public ResponseEntity<PostResponseDto> getPostsFromFollowedUsernames(
             @RequestBody List<String> usernames,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int limit) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        PostResponseDto posts = postService.getByFollowedUsernames(usernames, pageable);
+        PostResponseDto posts = postService.getByFollowedUsernames(usernames, cursor, limit);
         return ResponseEntity.ok(posts);
     }
 

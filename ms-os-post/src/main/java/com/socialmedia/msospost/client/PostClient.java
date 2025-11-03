@@ -16,14 +16,14 @@ public interface PostClient {
     // 1. GET /posts/search
     @GetMapping("/search")
     PostResponseDto searchPosts(@RequestParam(required = false) String keyword,
-                                @RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "10") int size);
+                                @RequestParam(required = false) String cursor,
+                                @RequestParam(defaultValue = "10") int limit);
 
     // 2. GET /posts/user/{username}
     @GetMapping("/user/{username}")
     PostResponseDto getPostsByUsername(@PathVariable String username,
-                                     @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size);
+                                       @RequestParam(required = false) String cursor,
+                                       @RequestParam(defaultValue = "10") int limit);
     // 4. GET /posts
     @GetMapping
     PostResponseDto getAllPosts();
@@ -31,8 +31,8 @@ public interface PostClient {
     // 5. POST /posts/followed/
     @PostMapping("/followed")
     PostResponseDto getFollowedPosts(@RequestBody List<String> usernames,
-                                   @RequestParam(defaultValue = "0") int page,
-                                   @RequestParam(defaultValue = "10") int size);
+                                     @RequestParam(required = false) String cursor,
+                                     @RequestParam(defaultValue = "10") int limit);
 
     // 6. GET /posts/reported
     @GetMapping("/reported")

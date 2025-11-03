@@ -18,13 +18,13 @@ public class CommentEnrichmentProcessor implements SequenceProcessor {
     @Override
     public void process(PostWorkflowContext context) {
         Integer postId = context.getPostId();
-        System.out.println("💬 Fetching comments for postId: " + postId);
+//        System.out.println("💬 Fetching comments for postId: " + postId);
 
         List<CommentResponseDto> comments = commentClient.getCommentsByPost(postId);
-        System.out.println("💬 Fetched comments: " + comments); // ← 🔍 ADD THIS HERE
+//        System.out.println("💬 Fetched comments: " + comments); // ← 🔍 ADD THIS HERE
 
         context.setComments(comments);
 
-        System.out.println("💬 Received " + comments.size() + " comments");
+//        System.out.println("💬 Received " + comments.size() + " comments");
     }
 }

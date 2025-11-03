@@ -15,5 +15,5 @@ import java.util.List;
 public class PostResponseDto {
     private List<PostDto> posts;
     private boolean hasMore;
-    private LocalDateTime cursor;
+    private String cursor;
 }

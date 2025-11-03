@@ -39,9 +39,9 @@ public class PostOrchestrationController {
     @GetMapping("/search")
     public ResponseEntity<PostFeedResponseDto> searchPosts(
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        PostResponseDto postResponse = postClient.searchPosts(keyword, page, size);
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "10") int limit) {
+        PostResponseDto postResponse = postClient.searchPosts(keyword, cursor, limit);
         List<PostFeedItemDto> enriched = postResponse.getPosts().stream()
                 .map(post -> {
                     PostWorkflowContext ctx = new PostWorkflowContext();
@@ -66,9 +66,9 @@ public class PostOrchestrationController {
     //TODO Change Page to custom DTO with post list, cursor and has next boolean value for infinity scroll
     @GetMapping("/user/{username}")
     public ResponseEntity<PostFeedResponseDto> getPostsByUser(@PathVariable String username,
-                                                                @RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "10") int size) {
-        PostResponseDto postResponse = postClient.getPostsByUsername(username, page, size);
+                                                              @RequestParam(required = false) String cursor,
+                                                              @RequestParam(defaultValue = "10") int limit) {
+        PostResponseDto postResponse = postClient.getPostsByUsername(username, cursor, limit);
         List<PostFeedItemDto> enriched = postResponse.getPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());
@@ -99,9 +99,9 @@ public class PostOrchestrationController {
 
     @GetMapping("/followed/{username}")
     public ResponseEntity<PostFeedResponseDto> getFollowedPosts(@PathVariable String username,
-                                                                  @RequestParam(defaultValue = "0") int page,
-                                                                  @RequestParam(defaultValue = "10") int size) {
-        PostResponseDto followedPosts = followedPostsProcessor.getFollowedPosts(username, page, size);
+                                                                @RequestParam(required = false) String cursor,
+                                                                @RequestParam(defaultValue = "10") int limit) {
+        PostResponseDto followedPosts = followedPostsProcessor.getFollowedPosts(username, cursor, limit);
         List<PostFeedItemDto> enriched = followedPosts.getPosts().stream().map(post -> {
             PostWorkflowContext ctx = new PostWorkflowContext();
             ctx.setPostId(post.getId());

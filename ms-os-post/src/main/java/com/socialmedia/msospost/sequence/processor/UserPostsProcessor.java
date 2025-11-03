@@ -13,7 +13,7 @@ import java.util.List;
 public class UserPostsProcessor {
     private final PostClient postClient;
 
-    public PostResponseDto getPostsByUsername(String username, int page, int size) {
-        return postClient.getPostsByUsername(username, page, size);
+    public PostResponseDto getPostsByUsername(String username, String cursor, int limit) {
+        return postClient.getPostsByUsername(username, cursor, limit);
     }
 }

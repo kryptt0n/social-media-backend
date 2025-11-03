@@ -15,7 +15,7 @@ public class LikeEnrichmentProcessor implements SequenceProcessor {
     @Override
     public void process(PostWorkflowContext context) {
         Integer likeCount = likeClient.getLikeCount(context.getPostId());
-        System.out.println("❤️ Like count for post " + context.getPostId() + ": " + likeCount);
+//        System.out.println("❤️ Like count for post " + context.getPostId() + ": " + likeCount);
         context.setLikeCount(likeCount);
     }
 }
