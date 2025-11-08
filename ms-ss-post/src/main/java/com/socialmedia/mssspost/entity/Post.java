@@ -24,6 +24,7 @@ public class Post {
 
     private String username;
 
+    @Column(length = 1000)
     private String content;
 
     @Builder.Default
