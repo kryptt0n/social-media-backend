@@ -31,4 +31,7 @@ public interface UserCrudClient {
 
     @DeleteMapping("/usercrud/delete/{userId}")
     void deleteUser(@PathVariable Integer userId);
+
+    @DeleteMapping("/usercrud/delete/email/{email}")
+    void deleteUserWithEmail(@PathVariable String email);
 }

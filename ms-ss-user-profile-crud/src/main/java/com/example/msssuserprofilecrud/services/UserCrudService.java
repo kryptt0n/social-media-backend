@@ -6,6 +6,7 @@ import com.example.msssuserprofilecrud.dto.UserProfileDTO;
 import com.example.msssuserprofilecrud.dto.UserEmailDTO;
 import com.example.msssuserprofilecrud.dto.UserStatsResponse;
 import com.example.msssuserprofilecrud.entities.User;
+import com.example.msssuserprofilecrud.exceptions.UserAlreadyExistsException;
 import com.example.msssuserprofilecrud.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,11 @@ public class UserCrudService {
     }
 
     public User registerUser(User user) {
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new UserAlreadyExistsException("User with this email already exists");
+        }
+
         user.setCreatedAt(LocalDateTime.now());
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             user.setRoles("USER");
@@ -80,6 +86,11 @@ public class UserCrudService {
     @Transactional
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteUserWithEmail(String email) {
+        userRepository.deleteByEmail(email);
     }
 
     public Optional<User> updateUser(UpdateUserDTO updateUserDTO, Integer id) {

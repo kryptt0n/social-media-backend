@@ -4,6 +4,7 @@ import com.example.mssscredentials.dto.CredentialsByUsernameDTO;
 import com.example.mssscredentials.dto.UserEmailDTO;
 import com.example.mssscredentials.entity.Credential;
 import com.example.mssscredentials.entity.ResetPasswordToken;
+import com.example.mssscredentials.exceptions.UserAlreadyExistsException;
 import com.example.mssscredentials.feign.UserCrudClient;
 import com.example.mssscredentials.repositories.CredentialRepository;
 import com.example.mssscredentials.repositories.ResetPasswordTokenRepository;
@@ -43,6 +44,9 @@ public class CredentialsService {
     }
 
     public void register(String username, String password, Integer userId) {
+        if (credentialRepository.existsByUsername(username)) {
+            throw new UserAlreadyExistsException("User with this username already exists");
+        }
         credentialRepository.save(new Credential(username, passwordEncoder.encode(password), userId));
     }
 

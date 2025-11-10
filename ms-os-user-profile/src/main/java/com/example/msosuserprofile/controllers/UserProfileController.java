@@ -35,11 +35,25 @@ public class UserProfileController {
 
     @PostMapping("/register")
     public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO user) {
-        UserProfileRegisterDTO registerDTO = new UserProfileRegisterDTO(user.getEmail(), user.getBio(), user.getIsPublic());
-        ResponseEntity<UserProfileDTO> userProfileResponse = userCrudClient.register(registerDTO);
-        UserProfileDTO userProfileDTO = userProfileResponse.getBody();
-        log.info("UserProfileDTO with id: {}", userProfileDTO.id());
-        credentialClient.register(new CredentialsDto(user.getUsername(), user.getPassword(), userProfileDTO.id()));
+
+        UserProfileDTO userProfileDTO;
+        boolean deleteUserInfo = false;
+
+        try {
+            // create user profile with email -> create user credentials with username and password
+            // if username exists -> delete user profile
+            UserProfileRegisterDTO registerDTO = new UserProfileRegisterDTO(user.getEmail(), user.getBio(), user.getIsPublic());
+            ResponseEntity<UserProfileDTO> userProfileResponse = userCrudClient.register(registerDTO);
+            userProfileDTO = userProfileResponse.getBody();
+            log.info("UserProfileDTO with id: {}", userProfileDTO.id());
+            deleteUserInfo = true;
+            credentialClient.register(new CredentialsDto(user.getUsername(), user.getPassword(), userProfileDTO.id()));
+
+        } catch (FeignException feignException) {
+            if (deleteUserInfo)
+                userCrudClient.deleteUserWithEmail(user.getEmail());
+            throw feignException;
+        }
 
         // send kafka
         if (user.getBase64Image() != null && !user.getBase64Image().isEmpty()) {

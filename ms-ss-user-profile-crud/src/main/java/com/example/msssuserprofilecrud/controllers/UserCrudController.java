@@ -104,6 +104,12 @@ public class UserCrudController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/delete/email/{email}")
+    public ResponseEntity<Void> deleteUserWithEmail(@PathVariable String email) {
+        userService.deleteUserWithEmail(email);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
         List<UserProfileDTO> users = userService.getAllUserProfiles();  // ⬅️ Call service
