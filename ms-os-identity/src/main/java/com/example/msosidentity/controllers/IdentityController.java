@@ -1,6 +1,7 @@
 package com.example.msosidentity.controllers;
 
 import com.example.msosidentity.dto.*;
+import com.example.msosidentity.exceptions.InvalidCredentialsException;
 import com.example.msosidentity.feign.CredentialClient;
 import com.example.msosidentity.feign.JwtClient;
 import jakarta.validation.Valid;
@@ -22,10 +23,10 @@ public class IdentityController {
     @PostMapping("/token")
     public ResponseEntity<JwtKeyDto> login(@RequestBody CredentialsDto credentials) {
         if (credentialClient.authenticate(credentials)) {
-            JwtKeyDto jwtKeyDto = jwtClient.generateJwt(new GenerateTokenDto("test"));
+            JwtKeyDto jwtKeyDto = jwtClient.generateJwt(new GenerateTokenDto(credentials.getUsername()));
             return ResponseEntity.ok(jwtKeyDto);
         }
-        return ResponseEntity.badRequest().build();
+        throw new InvalidCredentialsException("Invalid username or password");
     }
 
     @PostMapping("/validate")

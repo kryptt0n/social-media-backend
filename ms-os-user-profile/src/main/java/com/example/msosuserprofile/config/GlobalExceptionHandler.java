@@ -16,9 +16,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = FeignException.class)
     public ProblemDetail handleFeignException(FeignException feignException) {
 
-        System.out.println("--------------------------");
-        System.out.println(feignException.contentUTF8());
-
         String data = feignException.contentUTF8();
         String message;
 
