@@ -2,14 +2,11 @@ package com.example.msosuserprofile.controllers;
 
 import com.example.msosuserprofile.dto.*;
 import com.example.msosuserprofile.feign.*;
-import com.example.msosuserprofile.kafka.MediaProducer;
 import com.example.msosuserprofile.service.ProfileListService;
 import feign.FeignException;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +22,6 @@ public class UserProfileController {
 
     private final UserCrudClient userCrudClient;
     private final CredentialClient credentialClient;
-    private final MediaProducer mediaProducer;
     private final MediaClient mediaClient;
     private final FollowClient followClient;
     private final ProfileListService profileListService;
@@ -38,14 +34,12 @@ public class UserProfileController {
 
         UserProfileDTO userProfileDTO;
         boolean deleteUserInfo = false;
-
         try {
             // create user profile with email -> create user credentials with username and password
             // if username exists -> delete user profile
             UserProfileRegisterDTO registerDTO = new UserProfileRegisterDTO(user.getEmail(), user.getBio(), user.getIsPublic());
             ResponseEntity<UserProfileDTO> userProfileResponse = userCrudClient.register(registerDTO);
             userProfileDTO = userProfileResponse.getBody();
-            log.info("UserProfileDTO with id: {}", userProfileDTO.id());
             deleteUserInfo = true;
             credentialClient.register(new CredentialsDto(user.getUsername(), user.getPassword(), userProfileDTO.id()));
 
@@ -55,14 +49,12 @@ public class UserProfileController {
             throw feignException;
         }
 
-        // send kafka
         if (user.getBase64Image() != null && !user.getBase64Image().isEmpty()) {
-            MediaRequestDto mediaRequestDto = new MediaRequestDto();
+            MediaPayloadDto mediaRequestDto = new MediaPayloadDto();
             mediaRequestDto.setBase64Image(user.getBase64Image());
-            mediaRequestDto.setProvider("PROFILE");
+            mediaRequestDto.setProvider(Provider.PROFILE);
             mediaRequestDto.setSourceId(userProfileDTO.id().toString());
-
-            mediaProducer.send(mediaRequestDto);
+            mediaClient.save(mediaRequestDto);
         }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userProfileDTO);
@@ -75,6 +67,7 @@ public class UserProfileController {
             CredentialsByUsernameDto credentials = credentialClient.getCredentialsByUsername(username);
             Integer userId = credentials.getUserId();
             UserProfileDTO userProfileDto = userCrudClient.getUser(userId);
+            System.out.println("OS-USER-PROF finding image for id: " + userProfileDto.id().toString());
             Optional<MediaResponseDto> mediaDto = mediaClient.findBySourceIdAndProvider(userProfileDto.id().toString(), "PROFILE");
             FollowResponseDto followResponseDto = followClient.getFollowData(username);
 
@@ -147,12 +140,12 @@ public class UserProfileController {
 
         // replace image
         if (dto.getBase64Image() != null && !dto.getBase64Image().isEmpty()) {
-            MediaRequestDto mediaRequestDto = new MediaRequestDto();
+            MediaPayloadDto mediaRequestDto = new MediaPayloadDto();
             mediaRequestDto.setBase64Image(dto.getBase64Image());
-            mediaRequestDto.setProvider("PROFILE");
+            mediaRequestDto.setProvider(Provider.PROFILE);
             mediaRequestDto.setSourceId(userId.toString());
 
-            mediaProducer.send(mediaRequestDto);
+            mediaClient.save(mediaRequestDto);
         }
 
         return ResponseEntity.ok(userCrudClient.updateUser(dto, userId));

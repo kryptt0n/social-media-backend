@@ -1,5 +1,6 @@
 package com.example.msssmediaexchange.controller;
 
+import com.example.msssmediaexchange.dto.MediaPayload;
 import com.example.msssmediaexchange.dto.MediaResponse;
 import com.example.msssmediaexchange.entity.Media;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,12 @@ public class MediaController {
     @DeleteMapping("/{sourceId}/{provider}")
     public ResponseEntity<Void> deleteMediaBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable Provider provider){
         mediaService.deleteMediaBySourceIdAndProvider(sourceId, provider);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> save(@RequestBody  MediaPayload payload) {
+        mediaService.processMedia(payload);
         return ResponseEntity.noContent().build();
     }
 }

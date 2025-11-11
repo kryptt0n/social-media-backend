@@ -1,10 +1,9 @@
 package com.example.msosuserprofile.feign;
 
+import com.example.msosuserprofile.dto.MediaPayloadDto;
 import com.example.msosuserprofile.dto.MediaResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -15,4 +14,7 @@ public interface MediaClient {
 
     @DeleteMapping("/{sourceId}/{provider}")
     Void deleteBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable String provider);
+
+    @PostMapping
+    Void save(@RequestBody MediaPayloadDto payload);
 }

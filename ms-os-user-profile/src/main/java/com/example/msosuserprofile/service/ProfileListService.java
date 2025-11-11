@@ -5,7 +5,6 @@ import com.example.msosuserprofile.feign.CredentialClient;
 import com.example.msosuserprofile.feign.FollowClient;
 import com.example.msosuserprofile.feign.MediaClient;
 import com.example.msosuserprofile.feign.UserCrudClient;
-import com.example.msosuserprofile.kafka.MediaProducer;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

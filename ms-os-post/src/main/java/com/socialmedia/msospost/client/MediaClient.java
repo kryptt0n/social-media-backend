@@ -10,9 +10,8 @@ import java.util.Optional;
 @FeignClient(name = "ms-ss-media-exchange", path = "/media")
 public interface MediaClient {
 
-    // step 1
-//    @PostMapping
-//    void upload(@RequestBody MediaPayload payload);
+    @PostMapping
+    void upload(@RequestBody MediaPayload payload);
 
     @GetMapping("/{sourceId}/{provider}")
     Optional<MediaDto> findBySourceIdAndProvider(@PathVariable String sourceId, @PathVariable String provider);

@@ -6,5 +6,5 @@ import lombok.Data;
 public class MediaPayload {
     private String sourceId; // postId
     private String base64Image;
-    private String provider;
+    private Provider provider;
 }
