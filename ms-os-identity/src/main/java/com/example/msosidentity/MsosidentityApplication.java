@@ -6,16 +6,19 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
+@EnableRedisRepositories
 public class MsosidentityApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MsosidentityApplication.class, args);
-		System.out.println("V2.5");
+		System.out.println("V2.6");
 	}
 
 	@Bean

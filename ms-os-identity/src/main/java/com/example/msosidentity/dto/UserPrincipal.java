@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TokenValidateDto {
-    private String token;
+public class UserPrincipal {
+    private String username;
+    private Integer userId;
 }

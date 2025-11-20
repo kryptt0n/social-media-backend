@@ -7,15 +7,15 @@ import jakarta.validation.constraints.NotBlank;
 //@Setter
 public class ForgotPasswordDTO {
 
-    @Email(message = "Should be a valid email")
+    @Email(message = "Should be a valid value")
     @NotBlank(message = "Email cannot be blank")
     private String email;
 
-    public @Email(message = "Should be a valid email") @NotBlank(message = "Email cannot be blank") String getEmail() {
+    public @Email(message = "Should be a valid value") @NotBlank(message = "Email cannot be blank") String getEmail() {
         return email;
     }
 
-    public void setEmail(@Email(message = "Should be a valid email") @NotBlank(message = "Email cannot be blank") String email) {
+    public void setEmail(@Email(message = "Should be a valid value") @NotBlank(message = "Email cannot be blank") String email) {
         this.email = email;
     }
 }
