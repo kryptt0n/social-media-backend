@@ -2,10 +2,7 @@ package com.socialmedia.msospost.sequence.processor;
 
 import com.socialmedia.msospost.client.MediaClient;
 import com.socialmedia.msospost.client.PostClient;
-import com.socialmedia.msospost.dto.CreatePostRequestDto;
-import com.socialmedia.msospost.dto.MediaPayload;
-import com.socialmedia.msospost.dto.PostDto;
-import com.socialmedia.msospost.dto.Provider;
+import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.SequenceProcessor;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +35,9 @@ public class CreatePostProcessor implements SequenceProcessor {
             System.out.println("🖼️ Image exists!!!");
             MediaPayload payload = new MediaPayload();
             payload.setSourceId(String.valueOf(createdPost.getId()));
-            payload.setBase64Image(context.getBase64Image());
+            payload.setImage(context.getBase64Image());
             payload.setProvider(Provider.POST);
+            payload.setType(ImageType.BASE64);
 
             mediaClient.upload(payload);
             System.out.println("➡️ Trying to forward payload to kafka");
