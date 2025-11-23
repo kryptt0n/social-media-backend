@@ -1,8 +1,8 @@
 package com.socialmedia.msospost.controller;
 
-import com.socialmedia.msospost.client.CredentialClient;
 import com.socialmedia.msospost.client.MediaClient;
 import com.socialmedia.msospost.client.PostClient;
+import com.socialmedia.msospost.client.UserClient;
 import com.socialmedia.msospost.dto.*;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.PostWorkflowRunner;
@@ -12,8 +12,6 @@ import com.socialmedia.msospost.sequence.processor.UnlikePostProcessor;
 import com.socialmedia.msospost.sequence.processor.DeletePostProcessor;
 import com.socialmedia.msospost.service.CommentOrchestratorService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +31,8 @@ public class PostOrchestrationController {
     private final CommentOrchestratorService commentOrchestratorService;
     private final DeletePostProcessor deletePostProcessor;
     private final PostClient postClient;
-    private final CredentialClient credentialClient;
     private final MediaClient mediaClient;
+    private final UserClient userClient;
 
     @GetMapping("/search")
     public ResponseEntity<PostFeedResponseDto> searchPosts(
@@ -205,7 +203,7 @@ public class PostOrchestrationController {
         List<CommentResponseDto> commentList = commentOrchestratorService.getCommentsByPost(postId);
 
         commentList.forEach(comment -> {
-            String userId = credentialClient.getCredentialsByUsername(comment.getUsername()).getUserId().toString();
+            String userId = userClient.getUserByUsername(comment.getUsername()).userId().toString();
             mediaClient.findBySourceIdAndProvider(userId, "PROFILE")
                     .ifPresentOrElse(
                             media -> {
