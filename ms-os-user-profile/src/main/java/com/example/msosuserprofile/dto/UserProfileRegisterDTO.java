@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserProfileRegisterDTO {
     private String email;
+    private String username;
     private String bio;
     private Boolean isPublic;
 }
