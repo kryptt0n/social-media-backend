@@ -7,6 +7,7 @@ import com.example.msosuserprofile.feign.MediaClient;
 import com.example.msosuserprofile.feign.UserCrudClient;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 public class ProfileListService {
 
     private final UserCrudClient userCrudClient;
-    private final CredentialClient credentialClient;
     private final MediaClient mediaClient;
     private final FollowClient followClient;
 
@@ -27,9 +27,11 @@ public class ProfileListService {
         return usernames.stream()
                 .map(username -> {
                     try {
-                        CredentialsByUsernameDto credentials = credentialClient.getCredentialsByUsername(username);
-                        Integer userId = credentials.getUserId();
-                        UserProfileDTO userProfileDto = userCrudClient.getUser(userId);
+                        Optional<UserProfileDTO> userProfileDTOOptional = userCrudClient.getUserProfileByUsername(username);
+                        if (userProfileDTOOptional.isEmpty())
+                            return null;
+
+                        UserProfileDTO userProfileDto = userProfileDTOOptional.get();
 
                         System.out.println(userProfileDto);
 
@@ -40,7 +42,7 @@ public class ProfileListService {
                         FollowResponseDto followResponseDto = followClient.getFollowData(username);
 
                         UserDataResponseDto userData = new UserDataResponseDto();
-                        userData.setUsername(credentials.getUsername());
+                        userData.setUsername(username);
                         mediaDto.ifPresent(mediaResponseDto -> {
                                     String imageUrl = mediaResponseDto.getUrl();
                                     userData.setImageUrl(imageUrl);
