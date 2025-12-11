@@ -2,7 +2,6 @@ package com.example.msssmediaexchange.controller;
 
 import com.example.msssmediaexchange.dto.MediaPayload;
 import com.example.msssmediaexchange.dto.MediaResponse;
-import com.example.msssmediaexchange.entity.Media;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,4 +34,5 @@ public class MediaController {
         mediaService.processMedia(payload);
         return ResponseEntity.noContent().build();
     }
+
 }
