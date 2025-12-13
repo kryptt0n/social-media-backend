@@ -2,7 +2,7 @@ package com.example.msssuserprofilecrud.controllers;
 
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
 import com.example.msssuserprofilecrud.dto.UserProfileDTO;
-import com.example.msssuserprofilecrud.dto.UserEmailDTO;
+import com.example.msssuserprofilecrud.dto.UserShortDTO;
 import com.example.msssuserprofilecrud.dto.UserStatsResponse;
 import com.example.msssuserprofilecrud.dto.UserProfileRegisterDTO;
 import com.example.msssuserprofilecrud.entities.User;
@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @ConfigurationPropertiesScan("com.example.msssuserprofilecrud.configs")
 
@@ -40,10 +41,11 @@ public class UserCrudController {
         user.setAccountNonLocked(true);
         user.setPublic(user.isPublic());
         user.setEmail(userDto.getEmail());
+        user.setUsername(userDto.getUsername());
 
         User savedUser = userService.registerUser(user);
 
-        UserProfileDTO result = new UserProfileDTO(savedUser.getId(), savedUser.getBio(), savedUser.getEmail(), savedUser.isAccountNonLocked(), savedUser.isPublic());
+        UserProfileDTO result = new UserProfileDTO(savedUser.getId(), savedUser.getBio(), savedUser.getEmail(), savedUser.getUsername(), savedUser.isAccountNonLocked(), savedUser.isPublic());
         log.info("User saved successfully: {}", result.id());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -62,9 +64,21 @@ public class UserCrudController {
                 });
     }
 
+    @GetMapping("/users/usernames/{username}")
+    public ResponseEntity<UserProfileDTO> getUserProfileByUsername(@PathVariable String username) {
+        log.warn("Looging for userprofile: {}", username);
+        return userService.getUserProfileByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
     @GetMapping("/emails/{email}")
-    public ResponseEntity<UserEmailDTO> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserShortDTO> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
+    @GetMapping("/usernames/{username}")
+    public ResponseEntity<UserShortDTO> getUserByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
     @PostMapping("/deactivate/{userId}")
