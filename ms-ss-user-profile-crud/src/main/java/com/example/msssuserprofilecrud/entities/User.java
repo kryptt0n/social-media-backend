@@ -26,6 +26,8 @@ public class User {
 
     private String email;
 
+    private String username;
+
     @Column(name = "is_public")
     private boolean isPublic = true;
 
