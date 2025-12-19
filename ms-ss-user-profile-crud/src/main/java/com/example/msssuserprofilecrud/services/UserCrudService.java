@@ -1,24 +1,31 @@
 package com.example.msssuserprofilecrud.services;
 
 
+import com.example.msssuserprofilecrud.controllers.UserCrudController;
 import com.example.msssuserprofilecrud.dto.UpdateUserDTO;
 import com.example.msssuserprofilecrud.dto.UserProfileDTO;
-import com.example.msssuserprofilecrud.dto.UserEmailDTO;
+import com.example.msssuserprofilecrud.dto.UserShortDTO;
 import com.example.msssuserprofilecrud.dto.UserStatsResponse;
 import com.example.msssuserprofilecrud.entities.User;
 import com.example.msssuserprofilecrud.exceptions.UserAlreadyExistsException;
+import com.example.msssuserprofilecrud.exceptions.UserNotFoundException;
 import com.example.msssuserprofilecrud.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public class UserCrudService {
 
     private final UserRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(UserCrudService.class);
 
 
     public UserCrudService(UserRepository userRepository) {
@@ -30,7 +37,7 @@ public class UserCrudService {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            UserProfileDTO result = new UserProfileDTO(userId, user.getBio(), user.getEmail(), user.isAccountNonLocked(), user.isPublic());
+            UserProfileDTO result = new UserProfileDTO(userId, user.getBio(), user.getEmail(), user.getUsername(), user.isAccountNonLocked(), user.isPublic());
             return Optional.of(result);
         }
         return Optional.empty();
@@ -39,7 +46,7 @@ public class UserCrudService {
     public User registerUser(User user) {
 
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException("User with this email already exists");
+            throw new UserAlreadyExistsException("User with this value already exists");
         }
 
         user.setCreatedAt(LocalDateTime.now());
@@ -52,14 +59,13 @@ public class UserCrudService {
 
     public List<UserProfileDTO> getAllUserProfiles() {
         return userRepository.findAll().stream()
-                .map(user -> new UserProfileDTO(
-                        user.getId(),
-                        user.getBio(),
-                        user.getEmail(),
-                        user.isAccountNonLocked(),
-                        user.isPublic()
-                ))
+                .map(this::convertUserToUserProfile)
                 .toList();
+    }
+
+    public Optional<UserProfileDTO> getUserProfileByUsername(String username) {
+        log.warn("Found in repository: {}", userRepository.findByUsername(username));
+        return userRepository.findByUsername(username).map(this::convertUserToUserProfile);
     }
 
 
@@ -101,17 +107,12 @@ public class UserCrudService {
         });
     }
 
-    public UserEmailDTO getUserByEmail(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        UserEmailDTO result;
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            result = new UserEmailDTO(true, user.getEmail(), user.getId());
-        } else {
-            result = new UserEmailDTO(false, null, 0);
-        }
+    public UserShortDTO getUserByEmail(String email) {
+        return extractUserInfo(userRepository.findByEmail(email));
+    }
 
-        return result;
+    public UserShortDTO getUserByUsername(String username) {
+        return extractUserInfo(userRepository.findByUsername(username));
     }
 
     public UserStatsResponse getUserStats() {
@@ -120,5 +121,26 @@ public class UserCrudService {
         long privateCount = userRepository.countByIsPublicFalse();
 
         return new UserStatsResponse(total, publicCount, privateCount);
+    }
+
+    private UserShortDTO extractUserInfo(Optional<User> userOptional) {
+        UserShortDTO result;
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            result = new UserShortDTO(true, user.getEmail(), user.getUsername(), user.getId());
+        } else {
+           throw new UserNotFoundException("User not found");
+        }
+
+        return result;
+    }
+
+    private UserProfileDTO convertUserToUserProfile(User user) {
+        return new UserProfileDTO(user.getId(),
+                user.getBio(),
+                user.getEmail(),
+                user.getUsername(),
+                user.isAccountNonLocked(),
+                user.isPublic());
     }
 }
