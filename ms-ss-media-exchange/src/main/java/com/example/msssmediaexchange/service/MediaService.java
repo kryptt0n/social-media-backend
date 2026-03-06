@@ -6,6 +6,8 @@ import com.example.msssmediaexchange.dto.Provider;
 import com.example.msssmediaexchange.entity.Media;
 import com.example.msssmediaexchange.repository.MediaRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,6 +20,10 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Optional;
@@ -25,6 +31,7 @@ import java.util.UUID;
 
 @Service
 public class MediaService {
+    private static final Logger log = LoggerFactory.getLogger(MediaService.class);
     private final S3Client s3Client;
     private final MediaRepository mediaRepository;
     private final S3Presigner presigner;
@@ -40,11 +47,22 @@ public class MediaService {
 
     @KafkaListener(topics = "${kafka.topic.media}", groupId = "${spring.kafka.consumer.group-id}")
     public void processMedia(MediaPayload payload) {
-        if (payload.getBase64Image() == null || payload.getBase64Image().isEmpty()) {
+
+        switch (payload.getType()) {
+            case BASE64 -> processBase64Image(payload);
+            case URL -> processUrlImage(payload);
+            default -> {
+                return;
+            }
+        }
+    }
+
+    private void processBase64Image(MediaPayload payload) {
+        if (payload.getImage() == null || payload.getImage().isEmpty()) {
             return;
         }
 
-        byte[] imageData = Base64.getDecoder().decode(payload.getBase64Image());
+        byte[] imageData = Base64.getDecoder().decode(payload.getImage());
         String sourceId = payload.getSourceId();
         Provider provider = payload.getProvider();
 
@@ -83,6 +101,11 @@ public class MediaService {
                 .key(s3Key)
                 .build();
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageData));
+    }
+
+    private void processUrlImage(MediaPayload payload) {
+        payload.setImage(downloadImage(payload.getImage()));
+        processBase64Image(payload);
     }
 
     private String generateS3Key(String mediaId, Provider provider) {
@@ -124,5 +147,30 @@ public class MediaService {
         var presign = GetObjectPresignRequest.builder()
                 .getObjectRequest(getReq).signatureDuration(ttl).build();
         return presigner.presignGetObject(presign).url().toString();
+    }
+
+    private String downloadImage(String imageUrlString) {
+        try {
+            URL url = new URL(imageUrlString);
+
+            try (InputStream is = url.openStream()) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int read = 0;
+                while ((read = is.read(buffer, 0, buffer.length)) != -1) {
+                    baos.write(buffer, 0, read);
+                }
+                baos.flush();
+
+                byte[] imageBytes = baos.toByteArray();
+
+                return Base64.getEncoder().encodeToString(imageBytes);
+            }
+
+        } catch (IOException e) {
+            log.warn("Error downloading or converting image: {}", e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }

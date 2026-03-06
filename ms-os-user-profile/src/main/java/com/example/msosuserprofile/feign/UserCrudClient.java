@@ -5,33 +5,41 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "ms-ss-user-profile-crud")
+import java.util.Optional;
+
+@FeignClient(name = "ms-ss-user-profile-crud", dismiss404 = true, path = "/usercrud")
 public interface UserCrudClient {
 
-    @PostMapping("/usercrud/register")
+    @PostMapping("/register")
     ResponseEntity<UserProfileDTO> register(@RequestBody UserProfileRegisterDTO user);
 
-    @GetMapping("/usercrud/users/{userId}")
-    UserProfileDTO getUser(@PathVariable Integer userId);
+    @GetMapping("/users/{userId}")
+    Optional<UserProfileDTO> getUser(@PathVariable Integer userId);
 
-    @PostMapping("/usercrud/deactivate/{userId}")
+    @GetMapping("/usernames/{username}")
+    UserShortDTO getUserByUsername(@PathVariable String username);
+
+    @GetMapping("/users/usernames/{username}")
+    Optional<UserProfileDTO> getUserProfileByUsername(@PathVariable String username);
+
+    @PostMapping("/deactivate/{userId}")
     void deactivateUser(@PathVariable Integer userId);
 
-    @PutMapping("/usercrud/update/{userId}")
+    @PutMapping("/update/{userId}")
     String updateUser(@RequestBody UpdateRequestDto dto, @PathVariable Integer userId);
 
-    @PostMapping("/usercrud/recover/{userId}")
+    @PostMapping("/recover/{userId}")
     void recoverUser(@PathVariable Integer userId);
 
-    @PostMapping("/usercrud/set-public/{userId}")
+    @PostMapping("/set-public/{userId}")
     void setPublic(@PathVariable Integer userId);
 
-    @PostMapping("/usercrud/set-private/{userId}")
+    @PostMapping("/set-private/{userId}")
     void setPrivate(@PathVariable Integer userId);
 
-    @DeleteMapping("/usercrud/delete/{userId}")
+    @DeleteMapping("/delete/{userId}")
     void deleteUser(@PathVariable Integer userId);
 
-    @DeleteMapping("/usercrud/delete/email/{email}")
+    @DeleteMapping("/delete/email/{email}")
     void deleteUserWithEmail(@PathVariable String email);
 }

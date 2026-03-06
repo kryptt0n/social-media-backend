@@ -23,6 +23,13 @@ public class EmailService {
                         FRONT_END_URL + "/reset-password?token=" + code);
     }
 
+    public void sendConfirmationOauthEmail(String to, String code) {
+        sendEmail(to,
+                "Confirm value to sign up on social media platform",
+                "To finish creating your profile on social media platform please use following link: " +
+                        FRONT_END_URL + "/oauth/" + code);
+    }
+
 
     private void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();

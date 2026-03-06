@@ -1,7 +1,7 @@
 package com.socialmedia.msospost.sequence.processor;
 
-import com.socialmedia.msospost.client.CredentialClient;
 import com.socialmedia.msospost.client.MediaClient;
+import com.socialmedia.msospost.client.UserClient;
 import com.socialmedia.msospost.sequence.PostWorkflowContext;
 import com.socialmedia.msospost.sequence.SequenceProcessor;
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class MediaEnrichmentProcessor implements SequenceProcessor {
 
     private final MediaClient mediaClient;
-    private final CredentialClient credentialClient;
+    private final UserClient userClient;
     private static final String PROVIDER_POST = "POST"; // Avoids hardcoding throughout
 
     @Override
@@ -45,7 +45,7 @@ public class MediaEnrichmentProcessor implements SequenceProcessor {
         }
 
         try {
-            String userId = credentialClient.getCredentialsByUsername(username).getUserId().toString();
+            String userId = userClient.getUserByUsername(username).userId().toString();
 //            System.out.println("🧑 Avatar user ID: " + userId);
 
             mediaClient.findBySourceIdAndProvider(userId, "PROFILE")

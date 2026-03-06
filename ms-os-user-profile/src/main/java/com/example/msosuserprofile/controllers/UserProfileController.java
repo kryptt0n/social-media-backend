@@ -33,26 +33,16 @@ public class UserProfileController {
     public ResponseEntity<UserProfileDTO> register(@RequestBody UserRegisterDTO user) {
 
         UserProfileDTO userProfileDTO;
-        boolean deleteUserInfo = false;
-        try {
-            // create user profile with email -> create user credentials with username and password
-            // if username exists -> delete user profile
-            UserProfileRegisterDTO registerDTO = new UserProfileRegisterDTO(user.getEmail(), user.getBio(), user.getIsPublic());
-            ResponseEntity<UserProfileDTO> userProfileResponse = userCrudClient.register(registerDTO);
-            userProfileDTO = userProfileResponse.getBody();
-            deleteUserInfo = true;
-            credentialClient.register(new CredentialsDto(user.getUsername(), user.getPassword(), userProfileDTO.id()));
-
-        } catch (FeignException feignException) {
-            if (deleteUserInfo)
-                userCrudClient.deleteUserWithEmail(user.getEmail());
-            throw feignException;
-        }
+        UserProfileRegisterDTO registerDTO = new UserProfileRegisterDTO(user.getEmail(), user.getUsername(), user.getBio() , user.getIsPublic());
+        ResponseEntity<UserProfileDTO> userProfileResponse = userCrudClient.register(registerDTO);
+        userProfileDTO = userProfileResponse.getBody();
+        credentialClient.register(new CredentialsDto(user.getUsername(), user.getPassword(), userProfileDTO.id()));
 
         if (user.getBase64Image() != null && !user.getBase64Image().isEmpty()) {
             MediaPayloadDto mediaRequestDto = new MediaPayloadDto();
-            mediaRequestDto.setBase64Image(user.getBase64Image());
+            mediaRequestDto.setImage(user.getBase64Image());
             mediaRequestDto.setProvider(Provider.PROFILE);
+            mediaRequestDto.setType(ImageType.BASE64);
             mediaRequestDto.setSourceId(userProfileDTO.id().toString());
             mediaClient.save(mediaRequestDto);
         }
@@ -64,15 +54,18 @@ public class UserProfileController {
     public ResponseEntity<UserDataResponseDto> getUser(@PathVariable String username) {
 
         try {
-            CredentialsByUsernameDto credentials = credentialClient.getCredentialsByUsername(username);
-            Integer userId = credentials.getUserId();
-            UserProfileDTO userProfileDto = userCrudClient.getUser(userId);
+            Optional<UserProfileDTO> userProfileDTOOptional = userCrudClient.getUserProfileByUsername(username);
+            log.warn("Found user profile: {} \nfor username: {}", userProfileDTOOptional, username);
+            if (userProfileDTOOptional.isEmpty())
+                return ResponseEntity.notFound().build();
+
+            UserProfileDTO userProfileDto = userProfileDTOOptional.get();
             System.out.println("OS-USER-PROF finding image for id: " + userProfileDto.id().toString());
             Optional<MediaResponseDto> mediaDto = mediaClient.findBySourceIdAndProvider(userProfileDto.id().toString(), "PROFILE");
             FollowResponseDto followResponseDto = followClient.getFollowData(username);
 
             UserDataResponseDto userDataResponseDto = new UserDataResponseDto();
-            userDataResponseDto.setUsername(credentials.getUsername());
+            userDataResponseDto.setUsername(username);
             mediaDto.ifPresent(mediaResponseDto -> userDataResponseDto.setImageUrl(mediaResponseDto.getUrl()));
             userDataResponseDto.setBio(userProfileDto.bio());
             userDataResponseDto.setActive(userProfileDto.isActive());
@@ -124,7 +117,7 @@ public class UserProfileController {
 
     @PostMapping("/deactivate/{username}")
     public ResponseEntity<String> deactivate(@PathVariable String username) {
-        Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
+        Integer userId = userCrudClient.getUserByUsername(username).userId();
 
         userCrudClient.deactivateUser(userId);
         return ResponseEntity.ok("User deactivated");
@@ -136,14 +129,15 @@ public class UserProfileController {
             @RequestBody UpdateRequestDto dto
 
     ) {
-        Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
+        Integer userId = userCrudClient.getUserByUsername(username).userId();
 
         // replace image
         if (dto.getBase64Image() != null && !dto.getBase64Image().isEmpty()) {
             MediaPayloadDto mediaRequestDto = new MediaPayloadDto();
-            mediaRequestDto.setBase64Image(dto.getBase64Image());
+            mediaRequestDto.setImage(dto.getBase64Image());
             mediaRequestDto.setProvider(Provider.PROFILE);
             mediaRequestDto.setSourceId(userId.toString());
+            mediaRequestDto.setType(ImageType.BASE64);
 
             mediaClient.save(mediaRequestDto);
         }
@@ -153,7 +147,7 @@ public class UserProfileController {
 
     @PostMapping("/recovery/{username}")
     public ResponseEntity<String> recover(@PathVariable String username) {
-        Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
+        Integer userId = userCrudClient.getUserByUsername(username).userId();
 
         userCrudClient.recoverUser(userId);
         return ResponseEntity.ok("User recovered");
@@ -161,7 +155,7 @@ public class UserProfileController {
 
     @PostMapping("/set-public/{username}")
     public ResponseEntity<String> setPublic(@PathVariable String username) {
-        Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
+        Integer userId = userCrudClient.getUserByUsername(username).userId();
 
         userCrudClient.setPublic(userId);
         return ResponseEntity.ok("User set to public");
@@ -169,7 +163,7 @@ public class UserProfileController {
 
     @PostMapping("/set-private/{username}")
     public ResponseEntity<String> setPrivate(@PathVariable String username) {
-        Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
+        Integer userId = userCrudClient.getUserByUsername(username).userId();
 
         userCrudClient.setPrivate(userId);
         return ResponseEntity.ok("User set to private");
@@ -177,7 +171,7 @@ public class UserProfileController {
 
     @DeleteMapping("/delete-user/{username}")
     public ResponseEntity<String> deleteUser(@PathVariable String username) {
-        Integer userId = credentialClient.getCredentialsByUsername(username).getUserId();
+        Integer userId = userCrudClient.getUserByUsername(username).userId();
         System.out.println("id: " + userId);
         likeClient.deleteLike(username);
         commentClient.deleteComment(username);

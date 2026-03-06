@@ -8,9 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface CredentialRepository extends JpaRepository<Credential, Integer> {
-    Optional<Credential> findByUsername(String username);
     Optional<Credential> findByUserId(Integer userId);
-    boolean existsByUsername(String username);
-
-    void deleteByUsername(String username);
+    boolean existsByUserId(Integer userId);
+    void deleteAllByUserId(Integer userId);
 }

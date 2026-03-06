@@ -12,8 +12,6 @@ public interface CredentialClient {
     void register(@RequestBody CredentialsDto credentials);
     @PostMapping("/credentials/token")
     Boolean authenticate(@RequestBody CredentialsDto credentials);
-    @GetMapping("/credentials/{username}")
-    CredentialsByUsernameDto getCredentialsByUsername(@PathVariable String username);
     @DeleteMapping("/credentials/delete/{username}")
     Void deleteCredentialsByUsername(@PathVariable String username);
 }

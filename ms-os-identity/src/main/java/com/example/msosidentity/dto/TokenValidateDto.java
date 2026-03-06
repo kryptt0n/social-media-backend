@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TokenValidateDto {
     private String token;
-    private String username;
 }

@@ -1,4 +1,4 @@
-package com.example.mssscredentials.dto;
+package com.example.msosidentity.dto;
 
 
 public record UsernameResponse(String username) {}
