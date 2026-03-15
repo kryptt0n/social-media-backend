@@ -18,14 +18,14 @@ public class AuthIdentity {
     private AuthMethodType type;
     private String sub;
     private String provider;
-    private String value;
+    private String identifier;
     private Integer userId;
 
-    public AuthIdentity(AuthMethodType type, String sub, String provider, String value, Integer userId) {
+    public AuthIdentity(AuthMethodType type, String sub, String provider, String identifier, Integer userId) {
         this.type = type;
         this.sub = sub;
         this.provider = provider;
-        this.value = value;
+        this.identifier = identifier;
         this.userId = userId;
     }
 

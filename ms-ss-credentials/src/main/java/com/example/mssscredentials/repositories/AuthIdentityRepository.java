@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface AuthIdentityRepository extends JpaRepository<AuthIdentity, Long> {
-    List<AuthIdentity> findAllByTypeAndValue(AuthMethodType type, String value);
+    List<AuthIdentity> findAllByTypeAndIdentifier(AuthMethodType type, String value);
     List<AuthIdentity> findAllByUserId(Integer userId);
 }

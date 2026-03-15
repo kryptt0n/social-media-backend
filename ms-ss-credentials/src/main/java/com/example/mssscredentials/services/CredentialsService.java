@@ -49,7 +49,7 @@ public class CredentialsService {
     }
 
     public boolean authenticate(String username, String password) {
-        Optional<UserIdentifier> userIdentifier = userIdentifierRepository.findByValue(username);
+        Optional<UserIdentifier> userIdentifier = userIdentifierRepository.findByIdentifier(username);
 
         if (userIdentifier.isEmpty())
             return false;
@@ -61,7 +61,8 @@ public class CredentialsService {
     }
 
     public void register(String username, String password, Integer userId) {
-        if (credentialRepository.existsByUserId(userId)) {
+        if (credentialRepository.existsByUserId(userId) ||
+                userIdentifierRepository.existsByIdentifierAndType(username, IdentifierType.USERNAME)) {
             throw new UserAlreadyExistsException("User with this username already exists");
         }
         credentialRepository.save(new Credential(passwordEncoder.encode(password), userId));
@@ -100,7 +101,7 @@ public class CredentialsService {
     }
 
     public boolean oauthCredentialsExist(String email, String provider, String sub) {
-        List<AuthIdentity> identities = authIdentityRepository.findAllByTypeAndValue(AuthMethodType.OAUTH, email);
+        List<AuthIdentity> identities = authIdentityRepository.findAllByTypeAndIdentifier(AuthMethodType.OAUTH, email);
         return identities.stream().anyMatch(authIdentity ->
                 authIdentity.getProvider().equals(provider) &&
                         authIdentity.getSub().equals(sub));
@@ -158,11 +159,11 @@ public class CredentialsService {
     //TODO: GET USERNAME BOTH FROM CREDS AND OAUTH
 
     public Optional<String> getUsernameByUserId(Integer userId) {
-        return userIdentifierRepository.findByUserIdAndType(userId, IdentifierType.USERNAME).map(UserIdentifier::getValue);
+        return userIdentifierRepository.findByUserIdAndType(userId, IdentifierType.USERNAME).map(UserIdentifier::getIdentifier);
     }
 
     public UserShortDTO getUserByOauthEmail(String email) {
-        List<AuthIdentity> identities = authIdentityRepository.findAllByTypeAndValue(AuthMethodType.OAUTH, email);
+        List<AuthIdentity> identities = authIdentityRepository.findAllByTypeAndIdentifier(AuthMethodType.OAUTH, email);
 
         if (identities.isEmpty())
             throw new UserNotFoundException("User is not found");
@@ -174,13 +175,13 @@ public class CredentialsService {
         if (identifier.isEmpty())
             throw new UserNotFoundException("User is not found");
 
-        return new UserShortDTO(true, email, identifier.get().getValue(), identity.getUserId());
+        return new UserShortDTO(true, email, identifier.get().getIdentifier(), identity.getUserId());
 
     }
 
     @Transactional
     public void deleteCredentialByUsername(String username) {
-        Optional<UserIdentifier> identifier = userIdentifierRepository.findByValue(username);
+        Optional<UserIdentifier> identifier = userIdentifierRepository.findByIdentifier(username);
         if (identifier.isPresent()) {
             credentialRepository.deleteAllByUserId(identifier.get().getUserId());
             userIdentifierRepository.delete(identifier.get());

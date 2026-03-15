@@ -16,13 +16,13 @@ public class UserIdentifier {
 
     @Enumerated(EnumType.STRING)
     private IdentifierType type;
-    private String value;
+    private String identifier;
     private Integer userId;
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-    public UserIdentifier(IdentifierType type, String value, Integer userId) {
+    public UserIdentifier(IdentifierType type, String identifier, Integer userId) {
         this.type = type;
-        this.value = value;
+        this.identifier = identifier;
         this.userId = userId;
     }
 }

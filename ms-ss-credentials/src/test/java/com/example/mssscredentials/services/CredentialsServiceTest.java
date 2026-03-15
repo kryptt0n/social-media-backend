@@ -68,7 +68,6 @@ public class CredentialsServiceTest {
         CredentialsRegisterDto request = new CredentialsRegisterDto("test", "test", 1);
 
         when(credentialRepository.existsByUserId(1)).thenReturn(true);
-        when(passwordEncoder.encode("test")).thenReturn("encodedPassword");
 
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
             credentialsService.register(request.getUsername(), request.getPassword(), request.getUserId());
@@ -83,7 +82,7 @@ public class CredentialsServiceTest {
         String username = "test";
         String password = "test";
 
-        when(userIdentifierRepository.findByValue(username)).thenReturn(Optional.of(new UserIdentifier(IdentifierType.USERNAME, username, 1)));
+        when(userIdentifierRepository.findByIdentifier(username)).thenReturn(Optional.of(new UserIdentifier(IdentifierType.USERNAME, username, 1)));
         when(credentialRepository.findByUserId(1)).thenReturn(Optional.of(new Credential(password, 1)));
         when(passwordEncoder.matches(password, password)).thenReturn(true);
 
@@ -98,7 +97,7 @@ public class CredentialsServiceTest {
         String username = "test";
         String password = "test";
 
-        when(userIdentifierRepository.findByValue(username)).thenReturn(Optional.empty());
+        when(userIdentifierRepository.findByIdentifier(username)).thenReturn(Optional.empty());
 
         boolean isAuthenticated = credentialsService.authenticate(username, password);
 
@@ -112,7 +111,7 @@ public class CredentialsServiceTest {
         String password = "test";
         String incorrectPassword = "wrong";
 
-        when(userIdentifierRepository.findByValue(username)).thenReturn(Optional.of(new UserIdentifier(IdentifierType.USERNAME, username, 1)));
+        when(userIdentifierRepository.findByIdentifier(username)).thenReturn(Optional.of(new UserIdentifier(IdentifierType.USERNAME, username, 1)));
         when(credentialRepository.findByUserId(1)).thenReturn(Optional.of(new Credential(password, 1)));
         when(passwordEncoder.matches(incorrectPassword, password)).thenReturn(false);
 

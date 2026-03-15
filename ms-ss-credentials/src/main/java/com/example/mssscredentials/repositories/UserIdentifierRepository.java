@@ -10,8 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface UserIdentifierRepository extends JpaRepository<UserIdentifier, Long> {
-    Optional<UserIdentifier> findByValue(String value);
-    boolean existsByValueAndType(String value, IdentifierType type);
+    Optional<UserIdentifier> findByIdentifier(String value);
+    boolean existsByIdentifierAndType(String value, IdentifierType type);
     Optional<UserIdentifier> findByUserIdAndType(Integer userId, IdentifierType type);
     List<UserIdentifier> findAllByUserId(Integer userId);
 }
